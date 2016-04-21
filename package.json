@@ -1,0 +1,15 @@
+{
+  "name": "dayplanner",
+  "version": "1.0.0",
+  "description": "Node version for building dayplanner sheets",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "djboulia@gmail.com",
+  "license": "ISC",
+    "dependencies": {
+        "express": ">=4.13.3",
+        "pdfkit": "file:../pdfkit"
+    }
+}
