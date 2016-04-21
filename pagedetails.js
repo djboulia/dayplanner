@@ -30,21 +30,21 @@ var defaultStyles = {
 
 var daysInMonth = function (date) {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-}
+};
 
 var prevMonth = function (date) {
     // find last month
     var year = date.getMonth() > 0 ? date.getFullYear() : date.getFullYear() - 1;
     var month = date.getMonth() > 0 ? date.getMonth() - 1 : 11;
     return new Date(year, month, 1);
-}
+};
 
 var nextMonth = function (date) {
     // find next month
     var year = date.getMonth() < 11 ? date.getFullYear() : date.getFullYear() + 1;
     var month = date.getMonth() < 11 ? date.getMonth() + 1 : 0;
     return new Date(year, month, 1);
-}
+};
 
 var daysBetween = function( date1, date2 ) {
     //Calculate difference btw the two dates, and convert to days
@@ -52,14 +52,31 @@ var daysBetween = function( date1, date2 ) {
     var diffDays = Math.round(Math.abs((date1.getTime() -
                                         date2.getTime())/(oneDay)));
     return diffDays;
-}
+};
+
+var isCurrentWeek = function(startOfWeek, date1) {
+    // startOfWeek represents the date (1..31) of the beginning of the week
+    // (Sunday) for the given month.
+
+    var today = date1.getDate();
+
+    if (today >= startOfWeek && today < startOfWeek+7) {
+        return true;
+    }
+
+    return false;
+};
+
+var isToday = function(curDay, date1) {
+    return curDay == date1.getDate();
+};
 
 var daysRemainingInYear = function(date) {
     var firstDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     var endOfYear = new Date(date.getFullYear(), 11, 31);
 
     return daysBetween(firstDate, endOfYear);
-}
+};
 
 var daysRemainingInQuarter = function(date) {
     var firstDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -71,7 +88,7 @@ var daysRemainingInQuarter = function(date) {
 //                " endOfQuarter = " + endOfQuarter.toDateString());
 
     return daysBetween(firstDate, endOfQuarter);
-}
+};
 
 var applyStyles = function (defaultStyles, userStyles) {
     defaultStyles = defaultStyles || {};
@@ -90,7 +107,7 @@ var applyStyles = function (defaultStyles, userStyles) {
     }
 
     return mergedStyles;
-}
+};
 
 function PageDetails(document) {
 
@@ -203,6 +220,7 @@ function PageDetails(document) {
 
         var baseStyles = {
             color: defaultStyles.color.month,
+            highlight: false,
             size: 5
         };
 
@@ -233,6 +251,14 @@ function PageDetails(document) {
                 lineBreak: false
             });
 
+        var fontMonthHighlight = draw.fontStyle('Times-Roman',
+            RGB.white,
+            styles.size, {
+                align: 'center',
+                width: colWidth,
+                lineBreak: false
+            });
+
         //        console.log("Header width = " + fontHeader.width("M") +
         //            ", height = " + fontHeader.height("M"));
         //        console.log("Month width = " + fontMonth.width("30") +
@@ -255,16 +281,49 @@ function PageDetails(document) {
 
         var lineHeight = rowHeight;
         var yVal = y;
+        var highlightWeek = false;
 
         for (var week = 0; week < 6; week++) {
             xVal = x;
 
             yVal += lineHeight;
 
+            if (styles.highlight && isCurrentWeek(curDay, date)) {
+                var fudge = styles.size / 10;
+
+                // draw a highlight rectangle
+                var rect = draw.rectStyle(styles.color, .75);
+                rect.filled(xVal, yVal-fudge, colWidth*7, lineHeight-fudge);
+
+                highlightWeek = true;
+            } else {
+                highlightWeek = false;
+            }
+
             for (var j = 1; j <= 7; j++) {
                 var dayText = (curDay > 0 && curDay <= days) ? curDay.toString() : "";
 
-                fontMonth.text(dayText, xVal, yVal);
+
+                if (styles.highlight && highlightWeek) {
+                    if (isToday(curDay, date)) {
+                        var fudge = styles.size / 10;
+
+                        // make current day the reverse of the rest of the week
+                        var rect = draw.rectStyle(RGB.white, .75);
+                        rect.filled(xVal, yVal-fudge, colWidth, lineHeight-fudge);
+
+                        var lineWidth = fudge/5;
+                        var line = draw.lineStyle(styles.color, lineWidth);
+                        line.horizontal(xVal, yVal-fudge+lineWidth/2, colWidth);
+                        line.horizontal(xVal, yVal+lineHeight-fudge*2-lineWidth/2, colWidth);
+
+                        fontMonth.text(dayText, xVal, yVal);
+                    } else {
+                        fontMonthHighlight.text(dayText, xVal, yVal);
+                    }
+                } else {
+                    fontMonth.text(dayText, xVal, yVal);
+                }
 
                 xVal += colWidth; // advance to next column
                 curDay++;
@@ -344,10 +403,14 @@ function PageDetails(document) {
 
         fontHeader.text(month, x + 45, y);
 
+        styles.highlight = true;        // turn on highlighting current month for top calendar
+
         this.monthCalendar(date, x + 45, y + rowHeight, styles);
 
         var datePrev = prevMonth(date);
         var dateNext = nextMonth(date);
+
+        styles.highlight = false;
 
         this.sideBySideCalendar(datePrev, dateNext, x, y + rowHeight + 45, {
             color: styles.color,
