@@ -21,7 +21,7 @@ var defaultStyles = {
     color: {
         text: RGB.gray,
         month: RGB.black,
-        monthHighlight: RGB.gray,
+        monthHighlight: RGB.mediumGray,
         ruler: RGB.lightBlue,
         margin: RGB.gray,
         shadow: RGB.lightGray,
