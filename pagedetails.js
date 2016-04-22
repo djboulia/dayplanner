@@ -21,6 +21,7 @@ var defaultStyles = {
     color: {
         text: RGB.gray,
         month: RGB.black,
+        monthHighlight: RGB.gray,
         ruler: RGB.lightBlue,
         margin: RGB.gray,
         shadow: RGB.lightGray,
@@ -220,6 +221,7 @@ function PageDetails(document) {
 
         var baseStyles = {
             color: defaultStyles.color.month,
+            colorHighlight: defaultStyles.color.monthHighlight,
             highlight: false,
             size: 5
         };
@@ -292,7 +294,7 @@ function PageDetails(document) {
                 var fudge = styles.size / 10;
 
                 // draw a highlight rectangle
-                var rect = draw.rectStyle(styles.color, .75);
+                var rect = draw.rectStyle(styles.colorHighlight, .75);
                 rect.filled(xVal, yVal-fudge, colWidth*7, lineHeight-fudge);
 
                 highlightWeek = true;
@@ -313,7 +315,7 @@ function PageDetails(document) {
                         rect.filled(xVal, yVal-fudge, colWidth, lineHeight-fudge);
 
                         var lineWidth = fudge/5;
-                        var line = draw.lineStyle(styles.color, lineWidth);
+                        var line = draw.lineStyle(styles.colorHighlight, lineWidth);
                         line.horizontal(xVal, yVal-fudge+lineWidth/2, colWidth);
                         line.horizontal(xVal, yVal+lineHeight-fudge*2-lineWidth/2, colWidth);
 
