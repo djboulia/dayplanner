@@ -47,46 +47,46 @@ var nextMonth = function (date) {
     return new Date(year, month, 1);
 };
 
-var daysBetween = function( date1, date2 ) {
+var daysBetween = function (date1, date2) {
     //Calculate difference btw the two dates, and convert to days
-    var oneDay = 1000*60*60*24; // in milliseconds
+    var oneDay = 1000 * 60 * 60 * 24; // in milliseconds
     var diffDays = Math.round(Math.abs((date1.getTime() -
-                                        date2.getTime())/(oneDay)));
+        date2.getTime()) / (oneDay)));
     return diffDays;
 };
 
-var isCurrentWeek = function(startOfWeek, date1) {
+var isCurrentWeek = function (startOfWeek, date1) {
     // startOfWeek represents the date (1..31) of the beginning of the week
     // (Sunday) for the given month.
 
     var today = date1.getDate();
 
-    if (today >= startOfWeek && today < startOfWeek+7) {
+    if (today >= startOfWeek && today < startOfWeek + 7) {
         return true;
     }
 
     return false;
 };
 
-var isToday = function(curDay, date1) {
+var isToday = function (curDay, date1) {
     return curDay == date1.getDate();
 };
 
-var daysRemainingInYear = function(date) {
+var daysRemainingInYear = function (date) {
     var firstDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     var endOfYear = new Date(date.getFullYear(), 11, 31);
 
     return daysBetween(firstDate, endOfYear);
 };
 
-var daysRemainingInQuarter = function(date) {
+var daysRemainingInQuarter = function (date) {
     var firstDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     var month = date.getMonth();
-    var currentQuarter = Math.ceil((month+1)/3);
+    var currentQuarter = Math.ceil((month + 1) / 3);
     var endOfQuarter = new Date(date.getFullYear(), currentQuarter * 3, 0);
-    
-//    console.log("currentQuarter = " + currentQuarter + 
-//                " endOfQuarter = " + endOfQuarter.toDateString());
+
+    //    console.log("currentQuarter = " + currentQuarter +
+    //                " endOfQuarter = " + endOfQuarter.toDateString());
 
     return daysBetween(firstDate, endOfQuarter);
 };
@@ -108,6 +108,172 @@ var applyStyles = function (defaultStyles, userStyles) {
     }
 
     return mergedStyles;
+};
+
+/*
+ * calculate a reasonable spacing amount so that the text doesn't
+ * look too cramped when laying out a grid
+ */
+var rowSpace = function( fontSize ) {
+    return fontSize / 10;
+};
+
+var columnSpace = function( fontSize ) {
+    return fontSize / 2;
+};
+
+var columnWidth = function (fontSize) {
+    // return a reasonable column width based on a given font size
+    // this adds in some  white space for the given font size
+    return fontSize + columnSpace(fontSize);
+}
+
+/**
+ * draw headings for each day of the week as a row
+ *
+ * S  M  T  W  T  F  S
+ */
+var drawMonthColumnHeaders = function (x, y, styles) {
+    var colWidth = columnWidth(styles.size);
+
+    var fontHeader = draw.fontStyle('Times-Bold',
+        styles.color,
+        styles.size, {
+            align: 'center',
+            width: colWidth,
+            lineBreak: false
+        });
+
+    var weekHeaders = ["S", "M", "T", "W", "T", "F", "S"];
+
+    for (var i = 0; i < weekHeaders.length; i++) {
+        fontHeader.text(weekHeaders[i], x, y);
+        x += colWidth;
+    }
+
+};
+
+/*
+ * highlight this row by filling it with the highlight color
+ */
+var highlightRow = function (x, y, width, styles) {
+    var whitespace = rowSpace(styles.size);
+    var height = styles.size;
+
+    var rect = draw.rectStyle(styles.highlightColor, .75);
+    rect.filled(x, y - whitespace, width, height);
+};
+
+/*
+ * make current cell stand out by removing the highlight color
+ * we do this because highlightRow() has already filled the
+ * background color with the highlight color
+ */
+var removeHighlightFromCell = function (x, y, styles) {
+    var width = columnWidth(styles.size);
+    var height = styles.size;
+    var whitespace = rowSpace(styles.size);
+    var border = whitespace/5;  // keep small border at top and bottom
+
+    // draw white rectangle to erase highlight color for this day of the week
+    var rect = draw.rectStyle(RGB.white, .75);
+    rect.filled(x, y - whitespace + border, width, height - border*2);
+};
+
+/**
+ * draw the days of a given week in a row format, e.g.
+ *
+ * 7  8  9  10  11  12  13
+ *
+ */
+var drawWeek = function (curDay, date, x, y, styles) {
+
+    var days = daysInMonth(date);
+    var colWidth = columnWidth(styles.size);
+    var highlightWeek = styles.highlight && isCurrentWeek(curDay, date);
+
+    // init the day of week header and month number font styles
+    // we want them centered within the specified column width
+    // each character is placed individually, so we set the lineBreak to false
+    // since we never want any word wrap across lines
+
+    var fontMonth = draw.fontStyle('Times-Roman',
+        styles.color,
+        styles.size, {
+            align: 'center',
+            width: colWidth,
+            lineBreak: false
+        });
+
+    var fontMonthHighlight = draw.fontStyle('Times-Roman',
+        RGB.white,
+        styles.size, {
+            align: 'center',
+            width: colWidth,
+            lineBreak: false
+        });
+
+    for (var j = 1; j <= 7; j++) {
+        var dayText = (curDay > 0 && curDay <= days) ? curDay.toString() : "";
+
+        if (styles.highlight && highlightWeek) {
+            if (isToday(curDay, date)) {
+                removeHighlightFromCell(x, y, styles);
+
+                fontMonth.text(dayText, x, y);
+            } else {
+                fontMonthHighlight.text(dayText, x, y);
+            }
+        } else {
+            fontMonth.text(dayText, x, y);
+        }
+
+        x += colWidth; // advance to next column
+        curDay++;
+    }
+};
+
+/**
+ * draw all content of the weeks in the calendar, e.g.:
+ *
+ *    1  2  3  4  5  6
+ *  7 8  9  10 11 12 13
+ * 14 15 16 17 18 19 20
+ * 21 22 23 24 25 26 27
+ * 28 29 30
+ *
+ */
+var drawMonth = function (date, x, y, styles) {
+    var colWidth = columnWidth(styles.size);
+    var lineHeight = styles.size + rowSpace(styles.size);
+
+    //        console.log("colWidth = " + colWidth + ", lineHeight = " + lineHeight);
+
+    var firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    var curDay = ((firstOfMonth.getDay() + 1) * -1) + 2;
+
+    //    console.log("Month = " + date.getMonth() + " DaysInMonth= " +
+    //        days + " firstDay = " + firstOfMonth.getDay() + " curDay = " + curDay);
+
+    var yVal = y;
+
+    // the max number of rows required to display the days of the month is
+    // 6 based on how the first of the month lands and how many days are in the month.
+    // we loop through each row and lay out the days of the month.
+    var maxRows = 6;
+
+    for (var row = 0; row < maxRows; row++) {
+
+        yVal += lineHeight;
+
+        if (styles.highlight && isCurrentWeek(curDay, date)) {
+            highlightRow(x, yVal, colWidth * 7, styles);
+        }
+
+        drawWeek(curDay, date, x, yVal, styles);
+
+        curDay += 7;
+    }
 };
 
 function PageDetails(document) {
@@ -221,116 +387,16 @@ function PageDetails(document) {
 
         var baseStyles = {
             color: defaultStyles.color.month,
-            colorHighlight: defaultStyles.color.monthHighlight,
+            highlightColor: defaultStyles.color.monthHighlight,
             highlight: false,
             size: 5
         };
 
         styles = applyStyles(baseStyles, styles);
 
-        var colWidth = styles.size + styles.size / 2;
-        var rowHeight = styles.size + styles.size / 10;
+        drawMonthColumnHeaders(x, y, styles);
 
-        //        console.log("colWidth = " + colWidth + ", rowHeight = " + rowHeight);
-
-        // init the day of week header and month number font styles
-        // we want them centered within the specified column width
-        // each character is placed individually, so we set the lineBreak to false
-        // since we never want any word wrap across lines
-        var fontHeader = draw.fontStyle('Times-Bold',
-            styles.color,
-            styles.size, {
-                align: 'center',
-                width: colWidth,
-                lineBreak: false
-            });
-
-        var fontMonth = draw.fontStyle('Times-Roman',
-            styles.color,
-            styles.size, {
-                align: 'center',
-                width: colWidth,
-                lineBreak: false
-            });
-
-        var fontMonthHighlight = draw.fontStyle('Times-Roman',
-            RGB.white,
-            styles.size, {
-                align: 'center',
-                width: colWidth,
-                lineBreak: false
-            });
-
-        //        console.log("Header width = " + fontHeader.width("M") +
-        //            ", height = " + fontHeader.height("M"));
-        //        console.log("Month width = " + fontMonth.width("30") +
-        //            ", height = " + fontMonth.height("30"));
-
-        var xVal = x;
-
-        var weekHeaders = ["S", "M", "T", "W", "T", "F", "S"];
-        for (var i = 0; i < weekHeaders.length; i++) {
-            fontHeader.text(weekHeaders[i], xVal, y);
-            xVal += colWidth;
-        }
-
-        var days = daysInMonth(date);
-        var firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-        var curDay = ((firstOfMonth.getDay() + 1) * -1) + 2;
-
-        //    console.log("Month = " + date.getMonth() + " DaysInMonth= " +
-        //        days + " firstDay = " + firstOfMonth.getDay() + " curDay = " + curDay);
-
-        var lineHeight = rowHeight;
-        var yVal = y;
-        var highlightWeek = false;
-
-        for (var week = 0; week < 6; week++) {
-            xVal = x;
-
-            yVal += lineHeight;
-
-            if (styles.highlight && isCurrentWeek(curDay, date)) {
-                var fudge = styles.size / 10;
-
-                // draw a highlight rectangle
-                var rect = draw.rectStyle(styles.colorHighlight, .75);
-                rect.filled(xVal, yVal-fudge, colWidth*7, lineHeight-fudge);
-
-                highlightWeek = true;
-            } else {
-                highlightWeek = false;
-            }
-
-            for (var j = 1; j <= 7; j++) {
-                var dayText = (curDay > 0 && curDay <= days) ? curDay.toString() : "";
-
-
-                if (styles.highlight && highlightWeek) {
-                    if (isToday(curDay, date)) {
-                        var fudge = styles.size / 10;
-
-                        // make current day the reverse of the rest of the week
-                        var rect = draw.rectStyle(RGB.white, .75);
-                        rect.filled(xVal, yVal-fudge, colWidth, lineHeight-fudge);
-
-                        var lineWidth = fudge/5;
-                        var line = draw.lineStyle(styles.colorHighlight, lineWidth);
-                        line.horizontal(xVal, yVal-fudge+lineWidth/2, colWidth);
-                        line.horizontal(xVal, yVal+lineHeight-fudge*2-lineWidth/2, colWidth);
-
-                        fontMonth.text(dayText, xVal, yVal);
-                    } else {
-                        fontMonthHighlight.text(dayText, xVal, yVal);
-                    }
-                } else {
-                    fontMonth.text(dayText, xVal, yVal);
-                }
-
-                xVal += colWidth; // advance to next column
-                curDay++;
-            }
-        }
+        drawMonth(date, x, y, styles);
 
     };
 
@@ -366,8 +432,8 @@ function PageDetails(document) {
          * 
          *                   JANUARY
          *                S M T W T F S 
-         *                 1 2 3 4 5 6
-         *                  7 8 9 ...
+         *                  1 2 3 4 5 6
+         *                7 8 9 ...
          *     	 		        
          *                      |
          * DEC  S M T W T F S   |   S M T W T F S  FEB
@@ -391,7 +457,7 @@ function PageDetails(document) {
         styles = applyStyles(baseStyles, styles);
 
         var month = MONTHS[date.getMonth()];
-        var colWidth = styles.size + styles.size / 2;
+        var colWidth = columnWidth(styles.size);
         var fontSize = styles.size + 1;
         var rowHeight = fontSize + fontSize / 5;
 
@@ -405,14 +471,14 @@ function PageDetails(document) {
 
         fontHeader.text(month, x + 45, y);
 
-        styles.highlight = true;        // turn on highlighting current month for top calendar
+        styles.highlight = true; // turn on highlighting current month for top calendar
 
         this.monthCalendar(date, x + 45, y + rowHeight, styles);
 
         var datePrev = prevMonth(date);
         var dateNext = nextMonth(date);
 
-        styles.highlight = false;
+        styles.highlight = false; // no highlighting for the other months
 
         this.sideBySideCalendar(datePrev, dateNext, x, y + rowHeight + 45, {
             color: styles.color,
@@ -446,14 +512,14 @@ function PageDetails(document) {
 
         styles = applyStyles(baseStyles, styles);
 
-        var colWidth = styles.size + styles.size / 2;
-        var rowHeight = styles.size + styles.size / 10;
+        var colWidth = columnWidth(styles.size);
+        var rowHeight = styles.size + rowSpace(styles.size);
         var spacer = styles.size;
 
         var xVal = x;
 
         var shortMonths = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-        "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                           "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
         // text style for drawing the three letter month (e.g. JAN, FEB)
         // we specify a left alignment and no lineBreak since we don't
@@ -649,7 +715,7 @@ function PageDetails(document) {
         }
 
     };
-    
+
     this.factoids = function (date, x, y, styles) {
         /*
          * puts informational text at x, y
@@ -677,31 +743,31 @@ function PageDetails(document) {
         var days = daysRemainingInYear(date);
         var str = days.toString() + " days left this year";
 
-        switch(days) {
-            case 0:
-                str = "Last day of the year";
-                break;
-            case 1:
-                str = "1 day left this year";
-                break;
+        switch (days) {
+        case 0:
+            str = "Last day of the year";
+            break;
+        case 1:
+            str = "1 day left this year";
+            break;
         }
-        
+
         font.text(str, x, y);
 
         var days = daysRemainingInQuarter(date);
-        var height = font.height(str);        
+        var height = font.height(str);
         var str2 = days.toString() + " days left this quarter";
-        
-        switch(days) {
-            case 0:
-                str2 = "Last day of the quarter";
-                break;
-            case 1:
-                str2 = "1 day left this quarter";
-                break;
+
+        switch (days) {
+        case 0:
+            str2 = "Last day of the quarter";
+            break;
+        case 1:
+            str2 = "1 day left this quarter";
+            break;
         }
-        
-        font.text(str2, x, y+height+styles.size/5);
+
+        font.text(str2, x, y + height + styles.size / 5);
 
     }
 
@@ -726,7 +792,7 @@ function PageDetails(document) {
 
             doc.save()
             doc.translate(x, y);
-            doc.scale(0.05);    // the actual logo is huge.. scale it down to 5%
+            doc.scale(0.05); // the actual logo is huge.. scale it down to 5%
             doc.path(part.path) // render an SVG path
 
 
