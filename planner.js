@@ -4,6 +4,8 @@ var PageDetails = require('./pagedetails.js');
 
 
 function Planner(date) {
+    var styles = { lineHeight : 23.75 };    // [djb 09/23/2016] originally lineHeight=21
+
     var doc = new PDFDocument({
         size: 'letter'
     });
@@ -27,7 +29,7 @@ function Planner(date) {
 
         page.twoMonthCalendar(date, 405, 13);
 
-        page.notesArea(55, 52, 525, 715);
+        page.notesArea(55, 52, 525, 715, styles);
     };
 
     this.backPage = function () {
@@ -37,7 +39,7 @@ function Planner(date) {
 
         page.twoMonthCalendar(date, 375, topMargin);
 
-        page.notesArea(30, 52, 520, 715);
+        page.notesArea(30, 52, 520, 715, styles);
     };
 
 };

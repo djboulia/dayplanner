@@ -19,6 +19,8 @@ var RGB = {
 };
 
 var defaultStyles = {
+    lineHeight: 21,
+
     rgb: RGB,
 
     color: {
@@ -531,7 +533,7 @@ function PageDetails(document) {
          */
 
         var baseStyles = {
-            lineHeight: 21,
+            lineHeight: defaultStyles.lineHeight,
             lineColor: RGB.lightBlue,
             shadowColor: RGB.lightGray,
             marginWidth: 77,
@@ -577,7 +579,7 @@ function PageDetails(document) {
          * 
          */
         var baseStyles = {
-            lineHeight: 21,
+            lineHeight: defaultStyles.lineHeight,
             lineColor: RGB.lightBlue,
             textColor: RGB.white,
             shadowColor: RGB.lightGray,
@@ -611,7 +613,7 @@ function PageDetails(document) {
          */
 
         var baseStyles = {
-            lineHeight: 21,
+            lineHeight: defaultStyles.lineHeight,
             lineColor: RGB.lightBlue,
             textColor: RGB.white,
             shadowColor: RGB.lightGray,

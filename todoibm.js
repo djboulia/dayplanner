@@ -6,6 +6,8 @@ var bottomMargin = 767; // maximum we can use at bottom
 var leftMargin = 55;
 
 function Todo(date) {
+    var styles = { lineHeight : 23.75 };    // [djb 09/23/2016] originally lineHeight=21
+
     var doc = new PDFDocument({
         size: 'letter'
     });
@@ -43,29 +45,33 @@ function Todo(date) {
         page.ibmLogo(525, topMargin);
 
         var startY = topMargin + 50 + 45;
-        var todoHeight = 170;
+        var todoHeight = styles.lineHeight*7;
 
-        page.todoArea("Work Items", leftMargin, startY, 250, todoHeight);
+        page.todoArea("Work Items", leftMargin, startY, 250, todoHeight, styles);
 
-        var homeItemsHeight = 108;
+        var homeItemsHeight = styles.lineHeight*5;
         page.todoArea("Personal Items", 315,
             topMargin + 30,
             525 - 315 + leftMargin,
-            homeItemsHeight);
+            homeItemsHeight,
+            styles);
 
         page.ruledArea("Reminders", 315,
             topMargin + homeItemsHeight + 50,
             525 - 315 + leftMargin,
-            startY + todoHeight - (topMargin + homeItemsHeight + 50));
+            startY + todoHeight - (topMargin + homeItemsHeight + 50),
+            styles);
 
         todoHeight += 20;
+
+        var stylesNotes = JSON.parse(JSON.stringify(styles));
+        stylesNotes.color = page.styles.rgb.mediumGray;
 
         page.notesArea(leftMargin,
             startY + todoHeight,
             525,
-            bottomMargin - startY - todoHeight, {
-                color: page.styles.rgb.mediumGray
-            });
+            bottomMargin - startY - todoHeight,
+            stylesNotes);
 
     };
 
@@ -78,7 +84,7 @@ function Todo(date) {
 
         page.twoMonthCalendar(date, 375, topMargin);
 
-        page.notesArea(30, 52, 520, 715);
+        page.notesArea(30, 52, 520, 715, styles);
     };
 
 };
