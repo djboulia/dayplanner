@@ -1,6 +1,9 @@
 var draw = require('./pdfdrawing.js');
 var ibmlogo = require('./ibmlogo.js');
+var DateUtils = require('./dateutils.js');
 var doc = null;
+
+var dateutils = new DateUtils();
 
 var MONTHS = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
             "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
@@ -29,67 +32,7 @@ var defaultStyles = {
     }
 };
 
-var daysInMonth = function (date) {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-};
 
-var prevMonth = function (date) {
-    // find last month
-    var year = date.getMonth() > 0 ? date.getFullYear() : date.getFullYear() - 1;
-    var month = date.getMonth() > 0 ? date.getMonth() - 1 : 11;
-    return new Date(year, month, 1);
-};
-
-var nextMonth = function (date) {
-    // find next month
-    var year = date.getMonth() < 11 ? date.getFullYear() : date.getFullYear() + 1;
-    var month = date.getMonth() < 11 ? date.getMonth() + 1 : 0;
-    return new Date(year, month, 1);
-};
-
-var daysBetween = function (date1, date2) {
-    //Calculate difference btw the two dates, and convert to days
-    var oneDay = 1000 * 60 * 60 * 24; // in milliseconds
-    var diffDays = Math.round(Math.abs((date1.getTime() -
-        date2.getTime()) / (oneDay)));
-    return diffDays;
-};
-
-var isCurrentWeek = function (startOfWeek, date1) {
-    // startOfWeek represents the date (1..31) of the beginning of the week
-    // (Sunday) for the given month.
-
-    var today = date1.getDate();
-
-    if (today >= startOfWeek && today < startOfWeek + 7) {
-        return true;
-    }
-
-    return false;
-};
-
-var isToday = function (curDay, date1) {
-    return curDay == date1.getDate();
-};
-
-var daysRemainingInYear = function (date) {
-    var firstDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    var endOfYear = new Date(date.getFullYear(), 11, 31);
-
-    return daysBetween(firstDate, endOfYear);
-};
-
-var daysRemainingInQuarter = function (date) {
-    var firstDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    var month = date.getMonth();
-    var currentQuarter = Math.ceil((month + 1) / 3);
-    var endOfQuarter = new Date(date.getFullYear(), currentQuarter * 3, 0);
-
-    //    console.log("currentQuarter = " + currentQuarter +
-    //                " endOfQuarter = " + endOfQuarter.toDateString());
-
-    return daysBetween(firstDate, endOfQuarter);
-};
 
 var applyStyles = function (defaultStyles, userStyles) {
     defaultStyles = defaultStyles || {};
@@ -188,9 +131,9 @@ var removeHighlightFromCell = function (x, y, styles) {
  */
 var drawWeek = function (curDay, date, x, y, styles) {
 
-    var days = daysInMonth(date);
+    var days = dateutils.daysInMonth(date);
     var colWidth = columnWidth(styles.size);
-    var highlightWeek = styles.highlight && isCurrentWeek(curDay, date);
+    var highlightWeek = styles.highlight && dateutils.isCurrentWeek(curDay, date);
 
     // init the day of week header and month number font styles
     // we want them centered within the specified column width
@@ -217,7 +160,7 @@ var drawWeek = function (curDay, date, x, y, styles) {
         var dayText = (curDay > 0 && curDay <= days) ? curDay.toString() : "";
 
         if (styles.highlight && highlightWeek) {
-            if (isToday(curDay, date)) {
+            if (dateutils.isToday(curDay, date)) {
                 removeHighlightFromCell(x, y, styles);
 
                 fontMonth.text(dayText, x, y);
@@ -266,7 +209,7 @@ var drawMonth = function (date, x, y, styles) {
 
         yVal += lineHeight;
 
-        if (styles.highlight && isCurrentWeek(curDay, date)) {
+        if (styles.highlight && dateutils.isCurrentWeek(curDay, date)) {
             highlightRow(x, yVal, colWidth * 7, styles);
         }
 
@@ -418,7 +361,7 @@ function PageDetails(document) {
          * 
          */
 
-        var date2 = nextMonth(date);
+        var date2 = dateutils.nextMonth(date);
 
         this.sideBySideCalendar(date, date2, x, y, styles);
     };
@@ -475,8 +418,8 @@ function PageDetails(document) {
 
         this.monthCalendar(date, x + 45, y + rowHeight, styles);
 
-        var datePrev = prevMonth(date);
-        var dateNext = nextMonth(date);
+        var datePrev = dateutils.prevMonth(date);
+        var dateNext = dateutils.nextMonth(date);
 
         styles.highlight = false; // no highlighting for the other months
 
@@ -740,7 +683,7 @@ function PageDetails(document) {
                 lineBreak: false
             });
 
-        var days = daysRemainingInYear(date);
+        var days = dateutils.daysRemainingInYear(date);
         var str = days.toString() + " days left this year";
 
         switch (days) {
@@ -754,7 +697,7 @@ function PageDetails(document) {
 
         font.text(str, x, y);
 
-        var days = daysRemainingInQuarter(date);
+        var days = dateutils.daysRemainingInQuarter(date);
         var height = font.height(str);
         var str2 = days.toString() + " days left this quarter";
 
