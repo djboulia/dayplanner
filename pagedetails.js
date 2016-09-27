@@ -163,7 +163,7 @@ function PageDetails(document) {
             x + styles.marginWidth, y + height);
     };
 
-    var rulerLines = function(x, y, w, h, lineWidth, lineHeight, color) {
+    var rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
         // empty ruler lines for notes
 
         var rulerLine = pdf.line(color, lineWidth);
@@ -225,7 +225,7 @@ function PageDetails(document) {
         var yVal = y + lineHeight + lineHeight / 10;
         var yLine = yVal + lineHeight;
 
-        rulerLines(x+1, yLine, width, y+height, .25, lineHeight, styles.lineColor);
+        rulerLines(x + 1, yLine, width, y + height, .25, lineHeight, styles.lineColor);
 
     };
 
@@ -252,7 +252,8 @@ function PageDetails(document) {
         rect.shadowRect(x, y, width, height, 4, styles.shadowColor);
 
         // empty ruler lines for notes
-        rulerLines(x + 1, y + styles.lineHeight, width, y+height, .25, styles.lineHeight, styles.lineColor);
+        rulerLines(x + 1, y + styles.lineHeight, width, y + height, .25,
+            styles.lineHeight, styles.lineColor);
 
         // vertical margin line
         var line = pdf.line(styles.color, 1.0);
@@ -261,7 +262,7 @@ function PageDetails(document) {
             x + styles.marginWidth, y + height);
     };
 
-    var daysRemainingInYear = function(date) {
+    var daysRemainingInYear = function (date) {
         var days = dateutils.daysRemainingInYear(date);
         var str = "";
 
@@ -279,7 +280,7 @@ function PageDetails(document) {
         return str;
     };
 
-    var daysRemainingInQuarter = function(date) {
+    var daysRemainingInQuarter = function (date) {
         var days = dateutils.daysRemainingInQuarter(date);
         var str = "";
 
@@ -328,7 +329,7 @@ function PageDetails(document) {
         var height = text.height(str);
         var str = daysRemainingInQuarter(date);
 
-        text.print(str, x,  y + height + styles.size / 5);
+        text.print(str, x, y + height + styles.size / 5);
     }
 
     this.ibmLogo = function (x, y, styles) {

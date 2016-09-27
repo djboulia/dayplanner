@@ -11,7 +11,6 @@ function Todo(date) {
     var doc = new PDFDocument({
         size: 'letter'
     });
-    var page = new PageDetails(doc);
 
     this.open = function (stream) {
         doc.pipe(stream);
@@ -27,6 +26,8 @@ function Todo(date) {
 
 
     this.frontPage = function () {
+        var page = new PageDetails(doc);
+
         page.dayLabel(date, leftMargin, topMargin + 10, {
             color: page.styles.rgb.gray,
             size: 45,
@@ -76,6 +77,8 @@ function Todo(date) {
     };
 
     this.backPage = function () {
+        var page = new PageDetails(doc);
+
         page.monthLabel(date, 30, topMargin, {
             color: page.styles.rgb.gray,
             width: 80,
