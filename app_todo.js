@@ -40,7 +40,7 @@ var processArgs = function () {
     };
 }
 
-var config = processArgs( );
+var config = processArgs();
 
 console.log("Generating todo sheet for date " + config.date.toLocaleDateString());
 
