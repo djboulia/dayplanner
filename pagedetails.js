@@ -128,60 +128,6 @@ function PageDetails(document) {
         pdfCalendar.quarterCalendar(date, x, y, styles);
     };
 
-
-    this.shadowRect = function (x, y, w, h, styles) {
-        var baseStyles = {
-            shadowColor: RGB.lightGray,
-            color: RGB.mediumGray
-        };
-
-        styles = applyStyles(baseStyles, styles);
-
-
-        var rect = pdf.rectangle(styles.color, .75);
-        rect.shadowRect(x, y, w, h, 4, styles.shadowColor);
-    };
-
-    this.notesArea = function (x, y, width, height, styles) {
-        /*
-         *
-         * build up the notes area, consisting of a shadowed, rounded outer box
-         * a vertical margin line on the left
-         * and horizontal ruler lines for notes
-         *
-         */
-
-        var baseStyles = {
-            lineHeight: defaultStyles.lineHeight,
-            lineColor: RGB.lightBlue,
-            shadowColor: RGB.lightGray,
-            marginWidth: 77,
-            color: RGB.gray
-        };
-
-        styles = applyStyles(baseStyles, styles);
-
-        this.shadowRect(x, y, width, height, styles);
-
-        // empty ruler lines for notes
-        var xLine = x + 1;
-        var yLine = y + styles.lineHeight;
-
-        var rulerLine = pdf.line(styles.lineColor, .25);
-
-        while (yLine < (y + height)) {
-            rulerLine.horizontal(xLine, yLine, width - 1);
-
-            yLine += styles.lineHeight;
-        }
-
-        // vertical margin line
-        var line = pdf.line(styles.color, 1.0);
-
-        line.doubleLineTo(x + styles.marginWidth, y,
-            x + styles.marginWidth, y + height);
-    };
-
     this.todoArea = function (title, x, y, width, height, styles) {
         /*
          *
@@ -215,6 +161,18 @@ function PageDetails(document) {
 
         line.doubleLineTo(x + styles.marginWidth, y,
             x + styles.marginWidth, y + height);
+    };
+
+    var rulerLines = function(x, y, w, h, lineWidth, lineHeight, color) {
+        // empty ruler lines for notes
+
+        var rulerLine = pdf.line(color, lineWidth);
+
+        while (y < (h)) {
+            rulerLine.horizontal(x, y, w - 1);
+
+            y += lineHeight;
+        }
     };
 
     this.ruledArea = function (title, x, y, width, height, styles) {
@@ -265,19 +223,42 @@ function PageDetails(document) {
         fontHeader.print(title, x, y + lineHeight / 3);
 
         var yVal = y + lineHeight + lineHeight / 10;
-
-        // empty ruler lines for notes
-        var xLine = x + 1;
         var yLine = yVal + lineHeight;
 
-        var rulerLine = pdf.line(styles.lineColor, .25);
+        rulerLines(x+1, yLine, width, y+height, .25, lineHeight, styles.lineColor);
 
-        while (yLine < (y + height)) {
-            rulerLine.horizontal(xLine, yLine, width - 1);
+    };
 
-            yLine += lineHeight;
-        }
+    this.notesArea = function (x, y, width, height, styles) {
+        /*
+         *
+         * build up the notes area, consisting of a shadowed, rounded outer box
+         * a vertical margin line on the left
+         * and horizontal ruler lines for notes
+         *
+         */
 
+        var baseStyles = {
+            lineHeight: defaultStyles.lineHeight,
+            lineColor: RGB.lightBlue,
+            shadowColor: RGB.lightGray,
+            marginWidth: 77,
+            color: RGB.gray
+        };
+
+        styles = applyStyles(baseStyles, styles);
+
+        var rect = pdf.rectangle(styles.color, .75);
+        rect.shadowRect(x, y, width, height, 4, styles.shadowColor);
+
+        // empty ruler lines for notes
+        rulerLines(x + 1, y + styles.lineHeight, width, y+height, .25, styles.lineHeight, styles.lineColor);
+
+        // vertical margin line
+        var line = pdf.line(styles.color, 1.0);
+
+        line.doubleLineTo(x + styles.marginWidth, y,
+            x + styles.marginWidth, y + height);
     };
 
     var daysRemainingInYear = function(date) {
