@@ -3,7 +3,6 @@ var ibmlogo = require('./ibmlogo.js');
 var DateUtils = require('./dateutils.js');
 var FontUtils = require('./fontutils.js');
 var PDFCalendar = require('./pdfcalendar.js');
-var doc = null;
 
 var dateutils = new DateUtils();
 
@@ -58,7 +57,6 @@ var applyStyles = function (defaultStyles, userStyles) {
 
 function PageDetails(document) {
 
-    doc = document;
     var pdf = new PDFDrawing(document);
     var pdfCalendar = new PDFCalendar(pdf);
 
@@ -139,15 +137,9 @@ function PageDetails(document) {
 
         styles = applyStyles(baseStyles, styles);
 
-        doc.save();
-
-        var rectShadow = pdf.rectangle(styles.shadowColor, .75);
-        rectShadow.dropShadow(x, y, w, h, 4)
 
         var rect = pdf.rectangle(styles.color, .75);
-        rect.halfRounded(x, y, w, h, 4);
-
-        doc.restore();
+        rect.shadowRect(x, y, w, h, 4, styles.shadowColor);
     };
 
     this.notesArea = function (x, y, width, height, styles) {
@@ -288,6 +280,42 @@ function PageDetails(document) {
 
     };
 
+    var daysRemainingInYear = function(date) {
+        var days = dateutils.daysRemainingInYear(date);
+        var str = "";
+
+        switch (days) {
+        case 0:
+            str = "Last day of the year";
+            break;
+        case 1:
+            str = "1 day left this year";
+            break;
+        default:
+            str = days.toString() + " days left this year";
+        };
+
+        return str;
+    };
+
+    var daysRemainingInQuarter = function(date) {
+        var days = dateutils.daysRemainingInQuarter(date);
+        var str = "";
+
+        switch (days) {
+        case 0:
+            str = "Last day of the quarter";
+            break;
+        case 1:
+            str = "1 day left this quarter";
+            break;
+        default:
+            str = days.toString() + " days left this quarter";
+        }
+
+        return str;
+    };
+
     this.factoids = function (date, x, y, styles) {
         /*
          * puts informational text at x, y
@@ -305,42 +333,21 @@ function PageDetails(document) {
 
         styles = applyStyles(baseStyles, styles);
 
-        var font = pdf.text('Helvetica',
+        var text = pdf.text('Helvetica',
             styles.color,
             styles.size, {
                 align: 'left',
                 lineBreak: false
             });
+        var str = daysRemainingInYear(date);
 
-        var days = dateutils.daysRemainingInYear(date);
-        var str = days.toString() + " days left this year";
+        text.print(str, x, y);
 
-        switch (days) {
-        case 0:
-            str = "Last day of the year";
-            break;
-        case 1:
-            str = "1 day left this year";
-            break;
-        }
 
-        font.print(str, x, y);
+        var height = text.height(str);
+        var str = daysRemainingInQuarter(date);
 
-        var days = dateutils.daysRemainingInQuarter(date);
-        var height = font.height(str);
-        var str2 = days.toString() + " days left this quarter";
-
-        switch (days) {
-        case 0:
-            str2 = "Last day of the quarter";
-            break;
-        case 1:
-            str2 = "1 day left this quarter";
-            break;
-        }
-
-        font.print(str2, x, y + height + styles.size / 5);
-
+        text.print(str, x,  y + height + styles.size / 5);
     }
 
     this.ibmLogo = function (x, y, styles) {
@@ -358,35 +365,10 @@ function PageDetails(document) {
 
         styles = applyStyles(baseStyles, styles);
 
-        // Render each path that makes up the ibm logo
-        for (var i = 0; i < ibmlogo.length; i++) {
-            var part = ibmlogo[i];
+        var path = pdf.path(styles.color, 0.05); // the actual logo is huge.. scale it down to 5%
 
-            doc.save()
-            doc.translate(x, y);
-            doc.scale(0.05); // the actual logo is huge.. scale it down to 5%
-            doc.path(part.path) // render an SVG path
+        path.render(ibmlogo, x, y);
 
-
-            if (part['stroke-width']) {
-                doc.lineWidth(part['stroke-width']);
-            }
-
-            if (part.fill != 'none' && part.stroke != 'none') {
-                doc.fillAndStroke(styles.color, part.stroke);
-            } else {
-
-                if (part.fill == 'none') {
-                    doc.fill(styles.color)
-                }
-
-                if (part.stroke == 'none') {
-                    doc.stroke(part.stroke)
-                }
-            }
-
-            doc.restore()
-        }
     };
 
 

@@ -102,6 +102,17 @@ var rectangleObject = function (document, color, lineWidth) {
         doc.stroke();
     };
 
+    this.shadowRect = function (x, y, w, h, shadowWidth, shadowColor) {
+        doc.save();
+
+        var rectShadow = new rectangleObject(doc, shadowColor, .75);
+        rectShadow.dropShadow(x, y, w, h, shadowWidth)
+
+        this.halfRounded(x, y, w, h, shadowWidth);
+
+        doc.restore();
+    };
+
 };
 
 var textObject = function (document, fontName, color, size, options) {
@@ -180,6 +191,44 @@ var textObject = function (document, fontName, color, size, options) {
 
 };
 
+var pathObject = function (document, color, scaleFactor) {
+    var doc = document;
+
+    this.render = function (path, x, y) {
+        // Render each part of the path
+        for (var i = 0; i < path.length; i++) {
+            var part = path[i];
+
+            doc.save()
+            doc.translate(x, y);
+            doc.scale(scaleFactor);
+            doc.path(part.path) // render an SVG path
+
+
+            if (part['stroke-width']) {
+                doc.lineWidth(part['stroke-width']);
+            }
+
+            if (part.fill != 'none' && part.stroke != 'none') {
+                doc.fillAndStroke(color, part.stroke);
+            } else {
+
+                if (part.fill == 'none') {
+                    doc.fill(color)
+                }
+
+                if (part.stroke == 'none') {
+                    doc.stroke(part.stroke)
+                }
+            }
+
+            doc.restore()
+        }
+    };
+
+
+};
+
 function PDFDrawing(document) {
     var doc = document;
 
@@ -193,6 +242,10 @@ function PDFDrawing(document) {
 
     this.text = function (fontName, color, size, options) {
         return new textObject(doc, fontName, color, size, options);
+    };
+
+    this.path = function (color, scaleFactor) {
+        return new pathObject(doc, color, scaleFactor);
     };
 
 }
