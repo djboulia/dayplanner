@@ -1,4 +1,4 @@
-var Todo = require('./todoibm.js');
+var Planner = require('./planner.js');
 var fs = require('fs');
 
 var usageAndExit = function (appName) {
@@ -21,7 +21,7 @@ var processArgs = function () {
             }
 
             date = new Date(args[0]);
-            
+
             // check to see if an invalid date was supplied as an arg
             if (isNaN(date.getTime())) {
                 console.log("Invalid date");
@@ -44,14 +44,14 @@ var config = processArgs();
 
 console.log("Generating todo sheet for date " + config.date.toLocaleDateString());
 
-var doc = new Todo(config.date);
+var doc = new Planner(config.date);
 
 doc.open(fs.createWriteStream(config.filename));
 
-doc.frontPage();
+doc.renderTodo();
 
-doc.addPage();
+doc.newPage();
 
-doc.backPage();
+doc.renderNotes();
 
 doc.close();

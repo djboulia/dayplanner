@@ -6,10 +6,10 @@ var planner = new Planner(date);
 
 planner.open(fs.createWriteStream('out.pdf'));
 
-planner.frontPage();
+planner.renderNotes();
 
-planner.addPage();
+planner.newPage();
 
-planner.backPage();
+planner.renderNotes();
 
 planner.close();
