@@ -29,13 +29,13 @@ function Todo(date) {
         var page = new PageDetails(doc);
 
         page.dayLabel(date, leftMargin, topMargin + 10, {
-            color: page.styles.rgb.gray,
+            color: page.colors.gray,
             size: 45,
             width: 80
         });
 
         page.monthLabel(date, leftMargin, topMargin + 50, {
-            color: page.styles.rgb.gray,
+            color: page.colors.gray,
             width: 80,
             size: 28
         });
@@ -66,7 +66,7 @@ function Todo(date) {
         todoHeight += 20;
 
         var stylesNotes = JSON.parse(JSON.stringify(styles));
-        stylesNotes.color = page.styles.rgb.mediumGray;
+        stylesNotes.color = page.colors.mediumGray;
 
         page.notesArea(leftMargin,
             startY + todoHeight,
@@ -80,7 +80,7 @@ function Todo(date) {
         var page = new PageDetails(doc);
 
         page.monthLabel(date, 30, topMargin, {
-            color: page.styles.rgb.gray,
+            color: page.colors.gray,
             width: 80,
             size: 28
         });

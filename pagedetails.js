@@ -16,24 +16,6 @@ var RGB = {
     lightBlue: '#BBDDEE'
 };
 
-var defaultStyles = {
-    lineHeight: 21,
-
-    rgb: RGB,
-
-    color: {
-        text: RGB.gray,
-        background: RGB.white,
-        month: RGB.black,
-        monthHighlight: RGB.mediumGray,
-        ruler: RGB.lightBlue,
-        margin: RGB.gray,
-        shadow: RGB.lightGray,
-        noteBox: RGB.darkGray
-    }
-};
-
-
 
 var applyStyles = function (defaultStyles, userStyles) {
     defaultStyles = defaultStyles || {};
@@ -60,12 +42,14 @@ function PageDetails(document) {
     var pdf = new PDFDrawing(document);
     var pdfCalendar = new PDFCalendar(document);
 
-    this.styles = defaultStyles;
+    var lineHeight = 21;
+
+    this.colors = RGB;
 
     this.dayLabel = function (theDate, x, y, styles) {
         // default styles
         var baseStyles = {
-            color: defaultStyles.color.text,
+            color: RGB.gray,
             size: 45,
             width: 70
         };
@@ -78,7 +62,7 @@ function PageDetails(document) {
     this.monthLabel = function (theDate, x, y, styles) {
 
         var baseStyles = {
-            color: defaultStyles.color.text,
+            color: RGB.gray,
             width: 90,
             size: 25
         };
@@ -88,24 +72,9 @@ function PageDetails(document) {
         pdfCalendar.monthLabel(theDate, x, y, styles);
     };
 
-    this.monthCalendar = function (date, x, y, styles) {
-        var baseStyles = {
-            color: defaultStyles.color.month,
-            highlightColor: defaultStyles.color.monthHighlight,
-            backgroundColor: defaultStyles.color.background,
-            highlight: false,
-            size: 5
-        };
-
-        styles = applyStyles(baseStyles, styles);
-
-        pdfCalendar.monthCalendar(date, x, y, styles);
-
-    };
-
     this.twoMonthCalendar = function (date, x, y, styles) {
         var baseStyles = {
-            color: defaultStyles.color.month,
+            color: RGB.gray,
             size: 5
         };
 
@@ -117,9 +86,9 @@ function PageDetails(document) {
     this.quarterCalendar = function (date, x, y, styles) {
 
         var baseStyles = {
-            color: defaultStyles.color.text,
-            highlightColor: defaultStyles.color.monthHighlight,
-            backgroundColor: defaultStyles.color.background,
+            color: RGB.gray,
+            highlightColor: RGB.mediumGray,
+            backgroundColor: RGB.white,
             size: 5.5
         };
 
@@ -144,12 +113,13 @@ function PageDetails(document) {
          * 
          */
         var baseStyles = {
-            lineHeight: defaultStyles.lineHeight,
+            color: RGB.mediumGray,
             lineColor: RGB.lightBlue,
             textColor: RGB.white,
             shadowColor: RGB.lightGray,
-            marginWidth: 25,
-            color: RGB.mediumGray
+
+            lineHeight: lineHeight,
+            marginWidth: 25
         };
 
         styles = applyStyles(baseStyles, styles);
@@ -191,11 +161,12 @@ function PageDetails(document) {
          */
 
         var baseStyles = {
-            lineHeight: defaultStyles.lineHeight,
+            color: RGB.mediumGray,
             lineColor: RGB.lightBlue,
             textColor: RGB.white,
             shadowColor: RGB.lightGray,
-            color: RGB.mediumGray
+
+            lineHeight: lineHeight
         };
 
         styles = applyStyles(baseStyles, styles);
@@ -240,11 +211,12 @@ function PageDetails(document) {
          */
 
         var baseStyles = {
-            lineHeight: defaultStyles.lineHeight,
+            color: RGB.gray,
             lineColor: RGB.lightBlue,
             shadowColor: RGB.lightGray,
-            marginWidth: 77,
-            color: RGB.gray
+
+            lineHeight: lineHeight,
+            marginWidth: 77
         };
 
         styles = applyStyles(baseStyles, styles);

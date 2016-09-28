@@ -167,7 +167,7 @@ var PDFCalendar = function (document) {
         }
     };
 
-    this.monthCalendar = function(date, x, y, styles) {
+    var monthCalendar = function(date, x, y, styles) {
         /**
          * build a visual calendar at the specified x and y
          * coordinates for the month specified in date.
@@ -193,7 +193,8 @@ var PDFCalendar = function (document) {
         drawMonth(date, x, y, styles);
     };
 
-    this.sideBySideCalendar = function (date1, date2, x, y, styles) {
+    /* private function */
+    var sideBySideCalendar = function (date1, date2, x, y, styles) {
         /**
          * Writes PDF for two small calendars side by side, one in the date1,
          * the other for date2.  Will look roughly like this:
@@ -236,7 +237,7 @@ var PDFCalendar = function (document) {
         fontShortMonth.print(shortMonths[date1.getMonth()], xVal, y);
         xVal += fontShortMonth.width(shortMonths[date1.getMonth()]);
 
-        this.monthCalendar(date1, xVal + spacer, y, styles);
+        monthCalendar(date1, xVal + spacer, y, styles);
 
         xVal += spacer + colWidth * 7;
 
@@ -250,7 +251,7 @@ var PDFCalendar = function (document) {
         xVal += spacer;
 
         // second month calendar
-        this.monthCalendar(date2, xVal + spacer, y, styles);
+        monthCalendar(date2, xVal + spacer, y, styles);
 
         xVal += spacer + colWidth * 7;
         xVal += spacer;
@@ -259,6 +260,10 @@ var PDFCalendar = function (document) {
         fontShortMonth.print(shortMonths[date2.getMonth()], xVal, y);
 
     };
+
+    /** public functions of this object **/
+
+    this.monthCalendar = monthCalendar;
 
     this.twoMonthCalendar = function (date, x, y, styles) {
         /**
@@ -280,7 +285,7 @@ var PDFCalendar = function (document) {
 
         var date2 = dateutils.nextMonth(date);
 
-        this.sideBySideCalendar(date, date2, x, y, styles);
+        sideBySideCalendar(date, date2, x, y, styles);
     };
 
     this.quarterCalendar = function (date, x, y, styles) {
@@ -328,14 +333,14 @@ var PDFCalendar = function (document) {
 
         styles.highlight = true; // turn on highlighting current month for top calendar
 
-        this.monthCalendar(date, x + 45, y + rowHeight, styles);
+        monthCalendar(date, x + 45, y + rowHeight, styles);
 
         var datePrev = dateutils.prevMonth(date);
         var dateNext = dateutils.nextMonth(date);
 
         styles.highlight = false; // no highlighting for the other months
 
-        this.sideBySideCalendar(datePrev, dateNext, x, y + rowHeight + 45, {
+        sideBySideCalendar(datePrev, dateNext, x, y + rowHeight + 45, {
             color: styles.color,
             size: styles.size * .85
         });
