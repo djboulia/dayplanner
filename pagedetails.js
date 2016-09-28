@@ -1,5 +1,5 @@
 var PDFDrawing = require('./pdfdrawing.js');
-var ibmlogo = require('./ibmlogo.js');
+var IBMLogo = require('./ibmlogo.js');
 var DateUtils = require('./dateutils.js');
 var FontUtils = require('./fontutils.js');
 var PDFCalendar = require('./pdfcalendar.js');
@@ -58,7 +58,7 @@ var applyStyles = function (defaultStyles, userStyles) {
 function PageDetails(document) {
 
     var pdf = new PDFDrawing(document);
-    var pdfCalendar = new PDFCalendar(pdf);
+    var pdfCalendar = new PDFCalendar(document);
 
     this.styles = defaultStyles;
 
@@ -163,6 +163,7 @@ function PageDetails(document) {
             x + styles.marginWidth, y + height);
     };
 
+    /* private function */
     var rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
         // empty ruler lines for notes
 
@@ -262,6 +263,7 @@ function PageDetails(document) {
             x + styles.marginWidth, y + height);
     };
 
+    /* private function */
     var daysRemainingInYear = function (date) {
         var days = dateutils.daysRemainingInYear(date);
         var str = "";
@@ -280,6 +282,7 @@ function PageDetails(document) {
         return str;
     };
 
+    /* private function */
     var daysRemainingInQuarter = function (date) {
         var days = dateutils.daysRemainingInQuarter(date);
         var str = "";
@@ -347,9 +350,11 @@ function PageDetails(document) {
 
         styles = applyStyles(baseStyles, styles);
 
-        var path = pdf.path(styles.color, 0.05); // the actual logo is huge.. scale it down to 5%
+        var ibmLogo = new IBMLogo(pdf);
 
-        path.render(ibmlogo, x, y);
+        ibmLogo.color = styles.color;
+        ibmLogo.scaleFactor = 0.05; // the logo at 100% is huge.. scale it down to 5%
+        ibmLogo.draw(x, y);
 
     };
 

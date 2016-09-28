@@ -230,22 +230,21 @@ var pathObject = function (document, color, scaleFactor) {
 };
 
 function PDFDrawing(document) {
-    var doc = document;
 
     this.line = function (color, lineWidth) {
-        return new lineObject(doc, color, lineWidth);
+        return new lineObject(document, color, lineWidth);
     };
 
     this.rectangle = function (color, lineWidth) {
-        return new rectangleObject(doc, color, lineWidth);
+        return new rectangleObject(document, color, lineWidth);
     };
 
     this.text = function (fontName, color, size, options) {
-        return new textObject(doc, fontName, color, size, options);
+        return new textObject(document, fontName, color, size, options);
     };
 
     this.path = function (color, scaleFactor) {
-        return new pathObject(doc, color, scaleFactor);
+        return new pathObject(document, color, scaleFactor);
     };
 
 }

@@ -1,3 +1,4 @@
+var PDFDrawing = require('./pdfdrawing.js');
 var DateUtils = require('./dateutils.js');
 var FontUtils = require('./fontutils.js');
 
@@ -6,7 +7,9 @@ var dateutils = new DateUtils();
 var MONTHS = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
             "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 
-var PDFCalendar = function (pdf) {
+var PDFCalendar = function (document) {
+
+    var pdf = new PDFDrawing(document);
 
     /**
      * draw headings for each day of the week as a row
