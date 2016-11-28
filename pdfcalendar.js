@@ -4,9 +4,6 @@ var FontUtils = require('./fontutils.js');
 
 var dateutils = new DateUtils();
 
-var MONTHS = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
-            "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-
 var PDFCalendar = function (document) {
 
     var pdf = new PDFDrawing(document);
@@ -220,9 +217,6 @@ var PDFCalendar = function (document) {
 
         var xVal = x;
 
-        var shortMonths = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-                           "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-
         // text style for drawing the three letter month (e.g. JAN, FEB)
         // we specify a left alignment and no lineBreak since we don't
         // want this text to wrap
@@ -234,8 +228,10 @@ var PDFCalendar = function (document) {
             });
 
         // this month
-        fontShortMonth.print(shortMonths[date1.getMonth()], xVal, y);
-        xVal += fontShortMonth.width(shortMonths[date1.getMonth()]);
+        var monthString = dateutils.getMonthAbbreviation(date1.getMonth());
+
+        fontShortMonth.print(monthString, xVal, y);
+        xVal += fontShortMonth.width(monthString);
 
         monthCalendar(date1, xVal + spacer, y, styles);
 
@@ -257,7 +253,9 @@ var PDFCalendar = function (document) {
         xVal += spacer;
 
         // second month three letter month
-        fontShortMonth.print(shortMonths[date2.getMonth()], xVal, y);
+        monthString = dateutils.getMonthAbbreviation(date2.getMonth());
+
+        fontShortMonth.print(monthString, xVal, y);
 
     };
 
@@ -314,7 +312,7 @@ var PDFCalendar = function (document) {
          *
          */
 
-        var month = MONTHS[date.getMonth()];
+        var month = dateutils.getMonthName(date.getMonth());
 
         var fontUtils = new FontUtils(styles.size);
         var colWidth = fontUtils.columnWidth();
@@ -385,7 +383,7 @@ var PDFCalendar = function (document) {
          * @param styles object with style info (see below)
          */
 
-        var month = MONTHS[theDate.getMonth()];
+        var month = dateutils.getMonthName(theDate.getMonth());
         var year = theDate.getFullYear().toString();
         var textWidth = styles.width;
         var fontMonth = pdf.text('Times-Roman', styles.color, styles.size, {

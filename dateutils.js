@@ -7,7 +7,21 @@ var daysBetween = function (date1, date2) {
 };
 
 
+var MONTHS = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+                "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+
+var MONTHS_ABBREVIATION = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
 function DateUtils() {
+
+    this.getMonthName = function( month ) {
+        return MONTHS[month];
+    };
+
+    this.getMonthAbbreviation = function( month ) {
+        return MONTHS_ABBREVIATION[month];
+    };
 
     this.daysInMonth = function (date) {
         return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();

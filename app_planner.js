@@ -1,15 +1,27 @@
 var Planner = require('./planner.js');
 var fs = require('fs');
+var Config = require('./config.js');
+var DateUtils = require('./dateutils.js');
 
-var date = new Date();
-var planner = new Planner(date);
+var config = new Config();
+var dateutils = new DateUtils();
 
-planner.open(fs.createWriteStream('out.pdf'));
+if (config.parseCommandLine()) {
 
-planner.renderNotes();
+    console.log("Generating planner for month " + dateutils.getMonthName(config.date.getMonth()));
 
-planner.newPage();
+    var planner = new Planner(config.date);
 
-planner.renderNotes();
+    planner.open(fs.createWriteStream(config.filename));
 
-planner.close();
+    planner.renderNotes();
+
+    planner.newPage();
+
+    planner.renderNotes();
+
+    planner.close();
+
+} else {
+    config.printUsageAndExit();
+}
