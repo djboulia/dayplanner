@@ -1,10 +1,21 @@
+/**
+ *
+ * outputs a PDF file with a DayPlanner style todo list on the front and a ruled
+ * notes page on the back, tailored for the given date
+ *
+ * @djboulia [12/8/2016]
+ *
+ **/
+
 var Planner = require('./planner.js');
 var fs = require('fs');
-var Config = require('./config.js');
 
-var config = new Config();
+var CmdLine = require('./cmdline.js');
+var cmdLine = new CmdLine();
 
-if (config.parseCommandLine()) {
+var config = cmdLine.parse();
+
+if (config) {
 
     console.log("Generating todo sheet for date " + config.date.toLocaleDateString());
 
@@ -13,13 +24,11 @@ if (config.parseCommandLine()) {
     doc.open(fs.createWriteStream(config.filename));
 
     doc.renderTodo();
-
     doc.newPage();
-
     doc.renderNotes();
 
     doc.close();
 
 } else {
-    config.printUsageAndExit();
+    cmdLine.printUsageAndExit();
 }

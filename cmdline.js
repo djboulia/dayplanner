@@ -1,7 +1,6 @@
-var Config = function() {
+var CmdLine = function () {
 
-    this.date = null;
-    this.filename = "out.pdf";
+    var filename = "out.pdf";
 
     //
     // print a message to remind the user how the cmd line works, then exit
@@ -17,37 +16,39 @@ var Config = function() {
     //
     //  return true if the command line was valid, false otherwise
     //
-    this.parseCommandLine = function () {
+    this.parse = function () {
 
-        var date = new Date();
+        var config = {
+            date: new Date(),
+            filename: filename
+        };
+
         var args = process.argv.slice(2);
 
         if (args.length < 2) {
             if (args.length == 1) {
 
                 if (args[0].toLowerCase() == 'help') {
-                    return false;
+                    return undefined;
                 }
 
-                date = new Date(args[0]);
+                // set the date parsed from the command line
+                config.date = new Date(args[0]);
 
                 // check to see if an invalid date was supplied as an arg
-                if (isNaN(date.getTime())) {
+                if (isNaN(config.date.getTime())) {
                     console.log("Invalid date");
 
-                    return false;
+                    return undefined;
                 }
             }
         } else {
-            return false;
+            return undefined;
         }
 
-        // set the date parsed from the command line
-        this.date = date;
-
-        return true;
+        return config;
     };
 
 };
 
-module.exports = Config;
+module.exports = CmdLine;
