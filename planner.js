@@ -6,10 +6,12 @@ function Planner(date) {
     var pageNumber = 1;
 
     var getCurrentPageMargins = function () {
+        // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
+        //                  off the top of page on inkjet printers.
         var margin = {
             left: 30,
             width: 520,
-            top: 13, // minimum we can start from top
+            top: 15,    // minimum we can start from top 
             height: 767 // maximum height of page
         };
 

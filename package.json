@@ -8,8 +8,8 @@
   },
   "author": "djboulia@gmail.com",
   "license": "ISC",
-    "dependencies": {
-        "express": ">=4.13.3",
-        "pdfkit": "file:../pdfkit"
-    }
+  "dependencies": {
+    "express": ">=4.13.3",
+    "pdfkit": "file:../pdfkit"
+  }
 }
