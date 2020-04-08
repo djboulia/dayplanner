@@ -15,20 +15,18 @@ var cmdLine = new CmdLine();
 
 var config = cmdLine.parse();
 
-if (config) {
-
-    console.log("Generating todo sheet for date " + config.date.toLocaleDateString());
-
-    var doc = new Planner(config.date);
-
-    doc.open(fs.createWriteStream(config.filename));
-
-    doc.renderTodo();
-    doc.newPage();
-    doc.renderNotes();
-
-    doc.close();
-
-} else {
+if (!config) {
     cmdLine.printUsageAndExit();
 }
+
+console.log("Generating todo sheet for date " + config.date.toLocaleDateString());
+
+var doc = new Planner(config.date);
+
+doc.open(fs.createWriteStream(config.filename));
+
+doc.renderTodo();
+doc.newPage();
+doc.renderNotes();
+
+doc.close();

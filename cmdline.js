@@ -2,9 +2,9 @@ var CmdLine = function () {
 
     var filename = "out.pdf";
 
-    //
-    // print a message to remind the user how the cmd line works, then exit
-    //
+    /**
+     * print a message to remind the user how the cmd line works, then exit
+     */
     this.printUsageAndExit = function () {
         var appName = process.argv[1];
         appName = appName.substring(appName.lastIndexOf('/') + 1);
@@ -13,9 +13,9 @@ var CmdLine = function () {
         process.exit(1);
     };
 
-    //
-    //  return true if the command line was valid, false otherwise
-    //
+    /**
+     * return true if the command line was valid, false otherwise
+     */
     this.parse = function () {
 
         var config = {

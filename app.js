@@ -21,11 +21,9 @@ var sendDocument = function (res) {
 
     planner.open(res);
 
-    planner.frontPage();
-
-    planner.addPage();
-
-    planner.backPage();
+    planner.renderTodo();
+    planner.newPage();
+    planner.renderNotes();
 
     planner.close();
 };

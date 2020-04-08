@@ -46,7 +46,7 @@ var PDFCalendar = function (document) {
         rect.filled(x, y - whitespace, width, height);
     };
 
-    /*
+    /**
      * make current cell stand out by removing the highlight color
      * we do this because highlightRow() has already filled the
      * background color with the highlight color
@@ -164,51 +164,52 @@ var PDFCalendar = function (document) {
         }
     };
 
-    var monthCalendar = function(date, x, y, styles) {
-        /**
-         * build a visual calendar at the specified x and y
-         * coordinates for the month specified in date.
-         *
-         * resulting calendar output looks roughly like this:
-         *
-         * S  M  T  W  T  F  S
-         *    1  2  3  4  5  6
-         *  7 8  9  10 11 12 13
-         * 14 15 16 17 18 19 20
-         * 21 22 23 24 25 26 27
-         * 28 29 30
-         *
-         * @param date - the month and year for the calendar
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param styles object with style info (see below)
-         *
-         */
-
+    /**
+     * build a visual calendar at the specified x and y
+     * coordinates for the month specified in date.
+     *
+     * resulting calendar output looks roughly like this:
+     *
+     * S  M  T  W  T  F  S
+     *    1  2  3  4  5  6
+     *  7 8  9  10 11 12 13
+     * 14 15 16 17 18 19 20
+     * 21 22 23 24 25 26 27
+     * 28 29 30
+     *
+     * @param date - the month and year for the calendar
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param styles object with style info (see below)
+     *
+     */
+    var monthCalendar = function (date, x, y, styles) {
         drawMonthColumnHeaders(x, y, styles);
 
         drawMonth(date, x, y, styles);
     };
 
-    /* private function */
+    /**
+     * private function
+     * 
+     * Writes PDF for two small calendars side by side, one in the date1,
+     * the other for date2.  Will look roughly like this:
+     *
+     * JAN  S M T W T F S   |   S M T W T F S  MAR
+     *        1 2 3 4 5 6   |         1 2 3 4
+     *      7 8 9 ...       |   5 6 7 8 9 ...
+     *     	 		        |
+     *                      |
+     *
+     * @param date1 - the month and year for the left calendar
+     * @param date2 - the month and year for the right calendar
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param styles object with style info (see below)
+     *
+     */
+
     var sideBySideCalendar = function (date1, date2, x, y, styles) {
-        /**
-         * Writes PDF for two small calendars side by side, one in the date1,
-         * the other for date2.  Will look roughly like this:
-         *
-         * JAN  S M T W T F S   |   S M T W T F S  MAR
-         *        1 2 3 4 5 6   |         1 2 3 4
-         *      7 8 9 ...       |   5 6 7 8 9 ...
-         *     	 		        |
-         *                      |
-         *
-         * @param date1 - the month and year for the left calendar
-         * @param date2 - the month and year for the right calendar
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param styles object with style info (see below)
-         *
-         */
 
         var fontUtils = new FontUtils(styles.size);
         var colWidth = fontUtils.columnWidth();
@@ -263,54 +264,54 @@ var PDFCalendar = function (document) {
 
     this.monthCalendar = monthCalendar;
 
+    /**
+     * Writes PDF for two small calendars side by side, one in the current month,
+     * the other for the following month.  Will look roughly like this:
+     *
+     * JAN  S M T W T F S   |   S M T W T F S  FEB
+     *        1 2 3 4 5 6   |         1 2 3 4
+     *      7 8 9 ...       |   5 6 7 8 9 ...
+     *     	 		        |
+     *                      |
+     *
+     * @param date - the month and year for the calendar
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param styles object with style info (see below)
+     *
+     */
     this.twoMonthCalendar = function (date, x, y, styles) {
-        /**
-         * Writes PDF for two small calendars side by side, one in the current month,
-         * the other for the following month.  Will look roughly like this:
-         *
-         * JAN  S M T W T F S   |   S M T W T F S  FEB
-         *        1 2 3 4 5 6   |         1 2 3 4
-         *      7 8 9 ...       |   5 6 7 8 9 ...
-         *     	 		        |
-         *                      |
-         *
-         * @param date - the month and year for the calendar
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param styles object with style info (see below)
-         *
-         */
 
         var date2 = dateutils.nextMonth(date);
 
         sideBySideCalendar(date, date2, x, y, styles);
     };
 
+    /**
+     * Writes PDF for the current month on top, with two small calendars
+     * side by side, below.  Top has current month, two bottom
+     * are previous and next months for total of 3 month view.
+     * Will look roughly like this:
+     *
+     *                   JANUARY
+     *                S M T W T F S
+     *                  1 2 3 4 5 6
+     *                7 8 9 ...
+     *
+     *                      |
+     * DEC  S M T W T F S   |   S M T W T F S  FEB
+     *        1 2 3 4 5 6   |         1 2 3 4
+     *      7 8 9 ...       |   5 6 7 8 9 ...
+     *     	 		        |
+     *                      |
+     *
+     * @param date - the month and year for the calendar
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param styles object with style info (see below)
+     *
+     */
     this.quarterCalendar = function (date, x, y, styles) {
-        /**
-         * Writes PDF for the current month on top, with two small calendars
-         * side by side, below.  Top has current month, two bottom
-         * are previous and next months for total of 3 month view.
-         * Will look roughly like this:
-         *
-         *                   JANUARY
-         *                S M T W T F S
-         *                  1 2 3 4 5 6
-         *                7 8 9 ...
-         *
-         *                      |
-         * DEC  S M T W T F S   |   S M T W T F S  FEB
-         *        1 2 3 4 5 6   |         1 2 3 4
-         *      7 8 9 ...       |   5 6 7 8 9 ...
-         *     	 		        |
-         *                      |
-         *
-         * @param date - the month and year for the calendar
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param styles object with style info (see below)
-         *
-         */
 
         var month = dateutils.getMonthName(date.getMonth());
 
@@ -344,16 +345,16 @@ var PDFCalendar = function (document) {
         });
     };
 
+    /**
+     *  pretty print the current day of the month
+     *
+     * @param theDate : date object
+     * @param x       : x coord
+     * @param y       : y coord
+     * @param styles  : object with style info (see below)
+     *
+     */
     this.dayLabel = function (theDate, x, y, styles) {
-        /**
-         *  pretty print the current day of the month
-         *
-         * @param theDate : date object
-         * @param x       : x coord
-         * @param y       : y coord
-         * @param styles  : object with style info (see below)
-         *
-         */
 
         var day = theDate.getDate().toString();
 
@@ -366,22 +367,21 @@ var PDFCalendar = function (document) {
         font.print(day, x, y);
     };
 
+    /**
+     *  pretty print a month and year header for our notes sheet
+     *  this ends up looking something like this:
+     *
+     *  D E C E M B E R
+     *  ---------------
+     *  2    0    1   2
+     *  ---------------
+     *
+     * @param theDate date object to use for month/year
+     * @param x upper left x coord
+     * @param y upper left y coord
+     * @param styles object with style info (see below)
+     */
     this.monthLabel = function (theDate, x, y, styles) {
-
-        /**
-         *  pretty print a month and year header for our notes sheet
-         *  this ends up looking something like this:
-         *
-         *  D E C E M B E R
-         *  ---------------
-         *  2    0    1   2
-         *  ---------------
-         *
-         * @param theDate date object to use for month/year
-         * @param x upper left x coord
-         * @param y upper left y coord
-         * @param styles object with style info (see below)
-         */
 
         var month = dateutils.getMonthName(theDate.getMonth());
         var year = theDate.getFullYear().toString();

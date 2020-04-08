@@ -1,7 +1,6 @@
 var PDFDrawing = require('./pdfdrawing.js');
 var IBMLogo = require('./ibmlogo.js');
 var DateUtils = require('./dateutils.js');
-var FontUtils = require('./fontutils.js');
 var PDFCalendar = require('./pdfcalendar.js');
 
 var dateutils = new DateUtils();
@@ -97,21 +96,21 @@ function PageDetails(document) {
         pdfCalendar.quarterCalendar(date, x, y, styles);
     };
 
+    /**
+     *
+     * build up the todo area, consisting of a header box
+     * a vertical margin line on the left
+     * and horizontal ruler lines for notes
+     *
+     * @param title - text for header
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param width - width of area
+     * @param height - height of area
+     * @param styles object with style info (see below)
+     * 
+     */
     this.todoArea = function (title, x, y, width, height, styles) {
-        /*
-         *
-         * build up the todo area, consisting of a header box
-         * a vertical margin line on the left
-         * and horizontal ruler lines for notes
-         *
-         * @param title - text for header
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param width - width of area
-         * @param height - height of area
-         * @param styles object with style info (see below)
-         * 
-         */
         var baseStyles = {
             color: RGB.mediumGray,
             lineColor: RGB.lightBlue,
@@ -146,19 +145,19 @@ function PageDetails(document) {
         }
     };
 
+    /**
+     *
+     * build up an area with a header and horiz ruler lines for notes
+     *
+     * @param title - text for header
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param width - width of area
+     * @param height - height of area
+     * @param styles object with style info (see below)
+     * 
+     */
     this.ruledArea = function (title, x, y, width, height, styles) {
-        /*
-         *
-         * build up an area with a header and horiz ruler lines for notes
-         *
-         * @param title - text for header
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param width - width of area
-         * @param height - height of area
-         * @param styles object with style info (see below)
-         * 
-         */
 
         var baseStyles = {
             color: RGB.mediumGray,
@@ -201,14 +200,14 @@ function PageDetails(document) {
 
     };
 
+    /**
+     *
+     * build up the notes area, consisting of a shadowed, rounded outer box
+     * a vertical margin line on the left
+     * and horizontal ruler lines for notes
+     *
+     */
     this.notesArea = function (x, y, width, height, styles) {
-        /*
-         *
-         * build up the notes area, consisting of a shadowed, rounded outer box
-         * a vertical margin line on the left
-         * and horizontal ruler lines for notes
-         *
-         */
 
         var baseStyles = {
             color: RGB.gray,
@@ -241,14 +240,14 @@ function PageDetails(document) {
         var str = "";
 
         switch (days) {
-        case 0:
-            str = "Last day of the year";
-            break;
-        case 1:
-            str = "1 day left this year";
-            break;
-        default:
-            str = days.toString() + " days left this year";
+            case 0:
+                str = "Last day of the year";
+                break;
+            case 1:
+                str = "1 day left this year";
+                break;
+            default:
+                str = days.toString() + " days left this year";
         };
 
         return str;
@@ -260,28 +259,28 @@ function PageDetails(document) {
         var str = "";
 
         switch (days) {
-        case 0:
-            str = "Last day of the quarter";
-            break;
-        case 1:
-            str = "1 day left this quarter";
-            break;
-        default:
-            str = days.toString() + " days left this quarter";
+            case 0:
+                str = "Last day of the quarter";
+                break;
+            case 1:
+                str = "1 day left this quarter";
+                break;
+            default:
+                str = days.toString() + " days left this quarter";
         }
 
         return str;
     };
 
+    /**
+     * puts informational text at x, y
+     * 
+     * @param date - date to use for factoids
+     *  @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param styles object with style info (see below)
+     */
     this.factoids = function (date, x, y, styles) {
-        /*
-         * puts informational text at x, y
-         *
-         * @param date - date to use for factoids
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param styles object with style info (see below)
-         */
 
         var baseStyles = {
             color: RGB.mediumGray,
@@ -307,14 +306,14 @@ function PageDetails(document) {
         text.print(str, x, y + height + styles.size / 5);
     }
 
+    /**
+     * renders an IBM 8 bar logo via SVG paths
+     *
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param styles object with style info (see below)
+     */
     this.ibmLogo = function (x, y, styles) {
-        /*
-         * renders an IBM 8 bar logo via SVG paths
-         *
-         * @param x - upper left x coord
-         * @param y - upper left y coord
-         * @param styles object with style info (see below)
-         */
 
         var baseStyles = {
             color: RGB.mediumGray
@@ -327,9 +326,7 @@ function PageDetails(document) {
         ibmLogo.color = styles.color;
         ibmLogo.scaleFactor = 0.05; // the logo at 100% is huge.. scale it down to 5%
         ibmLogo.draw(x, y);
-
     };
-
 
 };
 
