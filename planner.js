@@ -2,8 +2,30 @@ PDFDocument = require('pdfkit');
 
 var PageDetails = require('./pagedetails.js');
 
-function Planner(date) {
+var RGB = require('./rgb.js');
+
+function Planner(date, theme, logo) {
   var pageNumber = 1;
+
+  if (!theme) {
+    // default theme
+    theme = {
+      dateDay: RGB.gray,
+      dateMonth: RGB.gray,
+      calendar: RGB.mediumGray,
+      notesHeader: RGB.mediumGray,
+      notesRulerLines: RGB.lightBlue,
+    };
+  }
+
+  if (!logo) {
+    // default is no logo
+    logo = {
+      color: undefined,
+      scale: 1.0,
+      svg: undefined,
+    };
+  }
 
   var getCurrentPageMargins = function () {
     // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
@@ -53,24 +75,29 @@ function Planner(date) {
     var margin = getCurrentPageMargins();
 
     page.dayLabel(date, margin.left, margin.top + 10, {
-      color: page.colors.gray,
+      color: theme.dateDay,
       size: 45,
       width: 80,
     });
 
     page.monthLabel(date, margin.left, margin.top + 50, {
-      color: page.colors.gray,
+      color: theme.dateMonth,
       width: 80,
       size: 28,
     });
 
-    page.quarterCalendar(date, margin.left + 95, margin.top);
+    var stylesCalendar = JSON.parse(JSON.stringify(styles));
+    stylesCalendar.color = theme.calendar;
+    stylesCalendar.highlightColor = theme.calendar;
+    stylesCalendar.backgroundColor = RGB.white;
+
+    page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
     var rightMargin = margin.left + margin.width;
 
     // offset factoids and ibm logo from right margin
-    page.factoids(date, rightMargin - 150, margin.top);
-    page.cnLogo(rightMargin - 50, margin.top);
+    page.factoids(date, rightMargin - 150, margin.top, stylesCalendar);
+    page.logo(logo, rightMargin - 50, margin.top);
 
     var startY = margin.top + 50 + 45;
     var todoHeight = styles.lineHeight * 7;
@@ -81,13 +108,17 @@ function Planner(date) {
     var homeItemsHeight = styles.lineHeight * 5;
     var secondColumn = margin.left + workItemsWidth + 10;
 
+    var stylesNotes = JSON.parse(JSON.stringify(styles));
+    stylesNotes.color = theme.notesHeader;
+    stylesNotes.lineColor = theme.notesRulerLines;
+
     page.todoArea(
       'Personal Items',
       secondColumn,
       margin.top + 30,
       rightMargin - secondColumn,
       homeItemsHeight,
-      styles,
+      stylesNotes,
     );
 
     page.ruledArea(
@@ -96,13 +127,10 @@ function Planner(date) {
       margin.top + homeItemsHeight + 50,
       rightMargin - secondColumn,
       startY + todoHeight - (margin.top + homeItemsHeight + 50),
-      styles,
+      stylesNotes,
     );
 
     todoHeight += 20;
-
-    var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = page.colors.mediumGray;
 
     page.notesArea(
       margin.left,
@@ -120,34 +148,42 @@ function Planner(date) {
     var page = new PageDetails(doc);
     var margin = getCurrentPageMargins();
 
-    page.dayLabel(date, margin.left, margin.top + 10, {
-      color: page.colors.gray,
+    page.dayLabel(date, margin.left, margin.top, {
+      color: theme.dateDay,
       size: 45,
       width: 80,
     });
 
     page.monthLabel(date, margin.left, margin.top + 50, {
-      color: page.colors.gray,
+      color: theme.dateMonth,
       width: 80,
       size: 28,
     });
 
-    page.quarterCalendar(date, margin.left + 95, margin.top);
+    var stylesCalendar = JSON.parse(JSON.stringify(styles));
+    stylesCalendar.color = theme.calendar;
+    stylesCalendar.highlightColor = theme.calendar;
+    stylesCalendar.backgroundColor = RGB.white;
+
+    page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
     var rightMargin = margin.left + margin.width;
 
     // offset factoids and ibm logo from right margin
-    page.factoids(date, rightMargin - 150, margin.top);
-    page.cnLogo(rightMargin - 50, margin.top);
+    page.factoids(date, rightMargin - 160, margin.top + 53, stylesCalendar);
+    page.logo(logo, rightMargin - 75, margin.top);
 
     var startY = margin.top + 50 + 45;
     var todoHeight = styles.lineHeight * 7;
     var workItemsWidth = 250;
 
-    var homeItemsHeight = styles.lineHeight * 5;
     var secondColumn = margin.left + workItemsWidth + 10;
 
-    page.todoArea('Personal Items', margin.left, startY, workItemsWidth, todoHeight, styles);
+    var stylesNotes = JSON.parse(JSON.stringify(styles));
+    stylesNotes.color = theme.notesHeader;
+    stylesNotes.lineColor = theme.notesRulerLines;
+
+    page.todoArea('Personal Items', margin.left, startY, workItemsWidth, todoHeight, stylesNotes);
 
     page.ruledArea(
       'Reminders',
@@ -155,13 +191,10 @@ function Planner(date) {
       startY,
       rightMargin - secondColumn,
       todoHeight,
-      styles,
+      stylesNotes,
     );
 
     todoHeight += 20;
-
-    var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = page.colors.mediumGray;
 
     page.todoWithDateArea(
       'Work Items',
@@ -178,14 +211,26 @@ function Planner(date) {
     var margin = getCurrentPageMargins();
 
     page.monthLabel(date, margin.left, margin.top, {
-      color: page.colors.gray,
+      color: theme.dateMonth,
       width: 80,
       size: 28,
     });
 
-    page.twoMonthCalendar(date, margin.left + 345, margin.top);
+    var stylesCalendar = JSON.parse(JSON.stringify(styles));
+    stylesCalendar.color = theme.calendar;
+    stylesCalendar.highlightColor = theme.calendar;
+    stylesCalendar.backgroundColor = RGB.white;
 
-    page.notesArea(margin.left, margin.top + 39, margin.width, margin.height - 52, styles);
+    page.twoMonthCalendar(date, margin.left + 180, margin.top, stylesCalendar);
+
+    var rightMargin = margin.left + margin.width;
+    page.logo(logo, rightMargin - 75, margin.top);
+
+    var stylesNotes = JSON.parse(JSON.stringify(styles));
+    stylesNotes.color = theme.notesHeader;
+    stylesNotes.lineColor = theme.notesRulerLines;
+
+    page.notesArea(margin.left, margin.top + 41, margin.width, margin.height - 54, stylesNotes);
   };
 }
 

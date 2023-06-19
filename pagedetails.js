@@ -1,20 +1,10 @@
-var PDFDrawing = require('./pdfdrawing.js');
-var IBMLogo = require('./ibmlogo.js');
-var CNLogo = require('./cnlogo.js');
 var DateUtils = require('./dateutils.js');
 var PDFCalendar = require('./pdfcalendar.js');
+var PDFDrawing = require('./pdfdrawing.js');
+
+var RGB = require('./rgb.js');
 
 var dateutils = new DateUtils();
-
-var RGB = {
-  white: '#FFFFFF',
-  black: '#000000',
-  darkGray: '#333333',
-  gray: '#666666',
-  mediumGray: '#888888',
-  lightGray: '#DDDDDD',
-  lightBlue: '#BBDDEE',
-};
 
 var applyStyles = function (defaultStyles, userStyles) {
   defaultStyles = defaultStyles || {};
@@ -40,8 +30,6 @@ function PageDetails(document) {
   var pdfCalendar = new PDFCalendar(document);
 
   var lineHeight = 21;
-
-  this.colors = RGB;
 
   this.dayLabel = function (theDate, x, y, styles) {
     // default styles
@@ -340,38 +328,19 @@ function PageDetails(document) {
   };
 
   /**
-   * renders an IBM 8 bar logo via SVG paths
+   * renders SVG logo
    *
+   * @param svg - an array of svg paths to render
    * @param x - upper left x coord
    * @param y - upper left y coord
    * @param styles object with style info (see below)
    */
-  this.ibmLogo = function (x, y, styles) {
-    var baseStyles = {
-      color: RGB.mediumGray,
-    };
+  this.logo = function (logo, x, y, styles) {
+    if (logo && logo.svg) {
+      var path = pdf.svg(logo.color, logo.scale);
 
-    styles = applyStyles(baseStyles, styles);
-
-    const scaleFactor = 0.05; // the logo at 100% is huge.. scale it down
-    var path = pdf.svg(styles.color, scaleFactor);
-
-    path.render(IBMLogo, x, y);
-  };
-
-  /**
-   * renders Charity Navigator logo via SVG paths
-   *
-   * @param x - upper left x coord
-   * @param y - upper left y coord
-   * @param styles object with style info (see below)
-   */
-  this.cnLogo = function (x, y, styles) {
-    const color = undefined; // don't override the color in the SVG
-    const scaleFactor = 0.09; // the logo at 100% is huge.. scale it down
-    var path = pdf.svg(color, scaleFactor);
-
-    path.render(CNLogo, x, y);
+      path.render(logo.svg, x, y);
+    }
   };
 }
 

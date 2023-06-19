@@ -4,10 +4,10 @@
  * notes page on the back, tailored for the given date
  *
  * @djboulia [12/8/2016]
- * 
+ *
  * Change History
  * 12/8/2016 -  Initial version
- * 8/27/2020 -  Modified to produce a single, full page todo for 
+ * 8/27/2020 -  Modified to produce a single, full page todo for
  *              integration with Good Notes (iPad/Mac)
  *
  **/
@@ -17,19 +17,40 @@ var fs = require('fs');
 
 var CmdLine = require('./cmdline.js');
 var cmdLine = new CmdLine();
+var CNLogo = require('./cnlogo.js');
 
 var config = cmdLine.parse();
 
 if (!config) {
-    cmdLine.printUsageAndExit();
+  cmdLine.printUsageAndExit();
 }
 
-console.log("Generating todo sheet for date " + config.date.toLocaleDateString());
+console.log('Generating todo sheet for date ' + config.date.toLocaleDateString());
 
-var doc = new Planner(config.date);
+var CHARITY_NAVIGATOR = {
+  green: '#89e260',
+  blue: '#3f5df5',
+  black: '#011936',
+};
 
-doc.open(fs.createWriteStream(config.filename));
+var theme = {
+  dateDay: CHARITY_NAVIGATOR.blue,
+  dateMonth: CHARITY_NAVIGATOR.black,
+  calendar: CHARITY_NAVIGATOR.black,
+  notesHeader: CHARITY_NAVIGATOR.black,
+  notesRulerLines: CHARITY_NAVIGATOR.blue,
+};
 
-doc.renderTodo();
+var logo = {
+  color: undefined,
+  scale: 0.125,
+  svg: CNLogo,
+};
 
-doc.close();
+var planner = new Planner(config.date, theme, logo);
+
+planner.open(fs.createWriteStream(config.filename));
+
+planner.renderTodo();
+
+planner.close();
