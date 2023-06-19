@@ -3,188 +3,190 @@ PDFDocument = require('pdfkit');
 var PageDetails = require('./pagedetails.js');
 
 function Planner(date) {
-    var pageNumber = 1;
+  var pageNumber = 1;
 
-    var getCurrentPageMargins = function () {
-        // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
-        //                  off the top of page on inkjet printers. (COVID-19)
-        var margin = {
-            left: 30,
-            width: 520,
-            top: 15, // minimum we can start from top 
-            height: 767 // maximum height of page
-        };
-
-        // odd pages have an additional offset on the left
-        // to allow for hole punching/binding
-        if (pageNumber % 2 == 1) {
-            margin.left += 25;
-        };
-
-        return margin;
+  var getCurrentPageMargins = function () {
+    // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
+    //                  off the top of page on inkjet printers. (COVID-19)
+    var margin = {
+      left: 30,
+      width: 520,
+      top: 15, // minimum we can start from top
+      height: 767, // maximum height of page
     };
 
-    var styles = {
-        lineHeight: 23.75 // [djb 09/23/2016] originally lineHeight=21
-    };
+    // odd pages have an additional offset on the left
+    // to allow for hole punching/binding
+    if (pageNumber % 2 == 1) {
+      margin.left += 25;
+    }
 
-    var doc = new PDFDocument({
-        size: 'letter'
+    return margin;
+  };
+
+  var styles = {
+    lineHeight: 23.75, // [djb 09/23/2016] originally lineHeight=21
+  };
+
+  var doc = new PDFDocument({
+    size: 'letter',
+  });
+
+  this.open = function (stream) {
+    doc.pipe(stream);
+  };
+
+  this.close = function () {
+    doc.end();
+  };
+
+  this.newPage = function () {
+    doc.addPage();
+    pageNumber++;
+  };
+
+  /**
+   * renders a page with todo list at the top, note taking area below
+   */
+  this.renderTodoAndNotes = function () {
+    var page = new PageDetails(doc);
+    var margin = getCurrentPageMargins();
+
+    page.dayLabel(date, margin.left, margin.top + 10, {
+      color: page.colors.gray,
+      size: 45,
+      width: 80,
     });
 
-    this.open = function (stream) {
-        doc.pipe(stream);
-    };
+    page.monthLabel(date, margin.left, margin.top + 50, {
+      color: page.colors.gray,
+      width: 80,
+      size: 28,
+    });
 
-    this.close = function () {
-        doc.end();
-    };
+    page.quarterCalendar(date, margin.left + 95, margin.top);
 
-    this.newPage = function () {
-        doc.addPage();
-        pageNumber++;
-    };
+    var rightMargin = margin.left + margin.width;
 
+    // offset factoids and ibm logo from right margin
+    page.factoids(date, rightMargin - 150, margin.top);
+    page.cnLogo(rightMargin - 50, margin.top);
 
-    /**
-     * renders a page with todo list at the top, note taking area below
-     */
-    this.renderTodoAndNotes = function () {
-        var page = new PageDetails(doc);
-        var margin = getCurrentPageMargins();
+    var startY = margin.top + 50 + 45;
+    var todoHeight = styles.lineHeight * 7;
+    var workItemsWidth = 250;
 
-        page.dayLabel(date, margin.left, margin.top + 10, {
-            color: page.colors.gray,
-            size: 45,
-            width: 80
-        });
+    page.todoArea('Work Items', margin.left, startY, workItemsWidth, todoHeight, styles);
 
-        page.monthLabel(date, margin.left, margin.top + 50, {
-            color: page.colors.gray,
-            width: 80,
-            size: 28
-        });
+    var homeItemsHeight = styles.lineHeight * 5;
+    var secondColumn = margin.left + workItemsWidth + 10;
 
-        page.quarterCalendar(date, margin.left + 95, margin.top);
+    page.todoArea(
+      'Personal Items',
+      secondColumn,
+      margin.top + 30,
+      rightMargin - secondColumn,
+      homeItemsHeight,
+      styles,
+    );
 
-        var rightMargin = margin.left + margin.width;
+    page.ruledArea(
+      'Reminders',
+      secondColumn,
+      margin.top + homeItemsHeight + 50,
+      rightMargin - secondColumn,
+      startY + todoHeight - (margin.top + homeItemsHeight + 50),
+      styles,
+    );
 
-        // offset factoids and ibm logo from right margin
-        page.factoids(date, rightMargin - 150, margin.top);
-        page.ibmLogo(rightMargin - 50, margin.top);
+    todoHeight += 20;
 
-        var startY = margin.top + 50 + 45;
-        var todoHeight = styles.lineHeight * 7;
-        var workItemsWidth = 250;
+    var stylesNotes = JSON.parse(JSON.stringify(styles));
+    stylesNotes.color = page.colors.mediumGray;
 
-        page.todoArea("Work Items", margin.left, startY, workItemsWidth, todoHeight, styles);
+    page.notesArea(
+      margin.left,
+      startY + todoHeight,
+      margin.width,
+      margin.height - startY - todoHeight,
+      stylesNotes,
+    );
+  };
 
-        var homeItemsHeight = styles.lineHeight * 5;
-        var secondColumn = margin.left + workItemsWidth + 10;
+  /**
+   * lays out a To-do page where the To-do list occupies the full page
+   */
+  this.renderTodo = function () {
+    var page = new PageDetails(doc);
+    var margin = getCurrentPageMargins();
 
-        page.todoArea("Personal Items", secondColumn,
-            margin.top + 30,
-            rightMargin - secondColumn,
-            homeItemsHeight,
-            styles);
+    page.dayLabel(date, margin.left, margin.top + 10, {
+      color: page.colors.gray,
+      size: 45,
+      width: 80,
+    });
 
-        page.ruledArea("Reminders", secondColumn,
-            margin.top + homeItemsHeight + 50,
-            rightMargin - secondColumn,
-            startY + todoHeight - (margin.top + homeItemsHeight + 50),
-            styles);
+    page.monthLabel(date, margin.left, margin.top + 50, {
+      color: page.colors.gray,
+      width: 80,
+      size: 28,
+    });
 
-        todoHeight += 20;
+    page.quarterCalendar(date, margin.left + 95, margin.top);
 
-        var stylesNotes = JSON.parse(JSON.stringify(styles));
-        stylesNotes.color = page.colors.mediumGray;
+    var rightMargin = margin.left + margin.width;
 
-        page.notesArea(margin.left,
-            startY + todoHeight,
-            margin.width,
-            margin.height - startY - todoHeight,
-            stylesNotes);
+    // offset factoids and ibm logo from right margin
+    page.factoids(date, rightMargin - 150, margin.top);
+    page.cnLogo(rightMargin - 50, margin.top);
 
-    };
+    var startY = margin.top + 50 + 45;
+    var todoHeight = styles.lineHeight * 7;
+    var workItemsWidth = 250;
 
-    /**
-     * lays out a To-do page where the To-do list occupies the full page
-     */
-    this.renderTodo = function () {
-        var page = new PageDetails(doc);
-        var margin = getCurrentPageMargins();
+    var homeItemsHeight = styles.lineHeight * 5;
+    var secondColumn = margin.left + workItemsWidth + 10;
 
-        page.dayLabel(date, margin.left, margin.top + 10, {
-            color: page.colors.gray,
-            size: 45,
-            width: 80
-        });
+    page.todoArea('Personal Items', margin.left, startY, workItemsWidth, todoHeight, styles);
 
-        page.monthLabel(date, margin.left, margin.top + 50, {
-            color: page.colors.gray,
-            width: 80,
-            size: 28
-        });
+    page.ruledArea(
+      'Reminders',
+      secondColumn,
+      startY,
+      rightMargin - secondColumn,
+      todoHeight,
+      styles,
+    );
 
-        page.quarterCalendar(date, margin.left + 95, margin.top);
+    todoHeight += 20;
 
-        var rightMargin = margin.left + margin.width;
+    var stylesNotes = JSON.parse(JSON.stringify(styles));
+    stylesNotes.color = page.colors.mediumGray;
 
-        // offset factoids and ibm logo from right margin
-        page.factoids(date, rightMargin - 150, margin.top);
-        page.ibmLogo(rightMargin - 50, margin.top);
+    page.todoWithDateArea(
+      'Work Items',
+      margin.left,
+      startY + todoHeight,
+      margin.width,
+      margin.height - startY - todoHeight,
+      stylesNotes,
+    );
+  };
 
-        var startY = margin.top + 50 + 45;
-        var todoHeight = styles.lineHeight * 7;
-        var workItemsWidth = 250;
+  this.renderNotes = function () {
+    var page = new PageDetails(doc);
+    var margin = getCurrentPageMargins();
 
-        var homeItemsHeight = styles.lineHeight * 5;
-        var secondColumn = margin.left + workItemsWidth + 10;
+    page.monthLabel(date, margin.left, margin.top, {
+      color: page.colors.gray,
+      width: 80,
+      size: 28,
+    });
 
-        page.todoArea("Personal Items",
-            margin.left,
-            startY,
-            workItemsWidth,
-            todoHeight,
-            styles);
+    page.twoMonthCalendar(date, margin.left + 345, margin.top);
 
-        page.ruledArea("Reminders", 
-            secondColumn,
-            startY,
-            rightMargin - secondColumn,
-            todoHeight,
-            styles);
-
-        todoHeight += 20;
-
-        var stylesNotes = JSON.parse(JSON.stringify(styles));
-        stylesNotes.color = page.colors.mediumGray;
-
-        page.todoWithDateArea("Work Items",
-            margin.left,
-            startY + todoHeight,
-            margin.width,
-            margin.height - startY - todoHeight,
-            stylesNotes);
-
-    };
-
-    this.renderNotes = function () {
-        var page = new PageDetails(doc);
-        var margin = getCurrentPageMargins();
-
-        page.monthLabel(date, margin.left, margin.top, {
-            color: page.colors.gray,
-            width: 80,
-            size: 28
-        });
-
-        page.twoMonthCalendar(date, margin.left + 345, margin.top);
-
-        page.notesArea(margin.left, margin.top + 39, margin.width, margin.height - 52, styles);
-    };
-
-};
-
+    page.notesArea(margin.left, margin.top + 39, margin.width, margin.height - 52, styles);
+  };
+}
 
 module.exports = Planner;

@@ -1,379 +1,378 @@
 var PDFDrawing = require('./pdfdrawing.js');
 var IBMLogo = require('./ibmlogo.js');
+var CNLogo = require('./cnlogo.js');
 var DateUtils = require('./dateutils.js');
 var PDFCalendar = require('./pdfcalendar.js');
 
 var dateutils = new DateUtils();
 
 var RGB = {
-    white: '#FFFFFF',
-    black: '#000000',
-    darkGray: '#333333',
-    gray: '#666666',
-    mediumGray: '#888888',
-    lightGray: '#DDDDDD',
-    lightBlue: '#BBDDEE'
+  white: '#FFFFFF',
+  black: '#000000',
+  darkGray: '#333333',
+  gray: '#666666',
+  mediumGray: '#888888',
+  lightGray: '#DDDDDD',
+  lightBlue: '#BBDDEE',
 };
-
 
 var applyStyles = function (defaultStyles, userStyles) {
-    defaultStyles = defaultStyles || {};
-    userStyles = userStyles || {};
+  defaultStyles = defaultStyles || {};
+  userStyles = userStyles || {};
 
-    var mergedStyles = {};
+  var mergedStyles = {};
 
-    for (var attrname in defaultStyles) {
-        mergedStyles[attrname] = defaultStyles[attrname];
-    }
+  for (var attrname in defaultStyles) {
+    mergedStyles[attrname] = defaultStyles[attrname];
+  }
 
-    // now apply any user defined styles.  note that any user styles
-    // will override the default
-    for (var attrname in userStyles) {
-        mergedStyles[attrname] = userStyles[attrname];
-    }
+  // now apply any user defined styles.  note that any user styles
+  // will override the default
+  for (var attrname in userStyles) {
+    mergedStyles[attrname] = userStyles[attrname];
+  }
 
-    return mergedStyles;
+  return mergedStyles;
 };
-
 
 function PageDetails(document) {
+  var pdf = new PDFDrawing(document);
+  var pdfCalendar = new PDFCalendar(document);
 
-    var pdf = new PDFDrawing(document);
-    var pdfCalendar = new PDFCalendar(document);
+  var lineHeight = 21;
 
-    var lineHeight = 21;
+  this.colors = RGB;
 
-    this.colors = RGB;
-
-    this.dayLabel = function (theDate, x, y, styles) {
-        // default styles
-        var baseStyles = {
-            color: RGB.gray,
-            size: 45,
-            width: 70
-        };
-
-        styles = applyStyles(baseStyles, styles);
-
-        pdfCalendar.dayLabel(theDate, x, y, styles);
+  this.dayLabel = function (theDate, x, y, styles) {
+    // default styles
+    var baseStyles = {
+      color: RGB.gray,
+      size: 45,
+      width: 70,
     };
 
-    this.monthLabel = function (theDate, x, y, styles) {
+    styles = applyStyles(baseStyles, styles);
 
-        var baseStyles = {
-            color: RGB.gray,
-            width: 90,
-            size: 25
-        };
+    pdfCalendar.dayLabel(theDate, x, y, styles);
+  };
 
-        styles = applyStyles(baseStyles, styles);
-
-        pdfCalendar.monthLabel(theDate, x, y, styles);
+  this.monthLabel = function (theDate, x, y, styles) {
+    var baseStyles = {
+      color: RGB.gray,
+      width: 90,
+      size: 25,
     };
 
-    this.twoMonthCalendar = function (date, x, y, styles) {
-        var baseStyles = {
-            color: RGB.gray,
-            size: 5
-        };
+    styles = applyStyles(baseStyles, styles);
 
-        styles = applyStyles(baseStyles, styles);
+    pdfCalendar.monthLabel(theDate, x, y, styles);
+  };
 
-        pdfCalendar.twoMonthCalendar(date, x, y, styles);
+  this.twoMonthCalendar = function (date, x, y, styles) {
+    var baseStyles = {
+      color: RGB.gray,
+      size: 5,
     };
 
-    this.quarterCalendar = function (date, x, y, styles) {
+    styles = applyStyles(baseStyles, styles);
 
-        var baseStyles = {
-            color: RGB.gray,
-            highlightColor: RGB.mediumGray,
-            backgroundColor: RGB.white,
-            size: 5.5
-        };
+    pdfCalendar.twoMonthCalendar(date, x, y, styles);
+  };
 
-        styles = applyStyles(baseStyles, styles);
-
-        pdfCalendar.quarterCalendar(date, x, y, styles);
+  this.quarterCalendar = function (date, x, y, styles) {
+    var baseStyles = {
+      color: RGB.gray,
+      highlightColor: RGB.mediumGray,
+      backgroundColor: RGB.white,
+      size: 5.5,
     };
 
-    /**
-     *
-     * build up the todo area, consisting of a header box
-     * a vertical margin line on the left
-     * and horizontal ruler lines for notes
-     *
-     * @param title - text for header
-     * @param x - upper left x coord
-     * @param y - upper left y coord
-     * @param width - width of area
-     * @param height - height of area
-     * @param styles object with style info (see below)
-     * 
-     */
-    this.todoArea = function (title, x, y, width, height, styles) {
-        var baseStyles = {
-            color: RGB.mediumGray,
-            lineColor: RGB.lightBlue,
-            textColor: RGB.white,
-            shadowColor: RGB.lightGray,
+    styles = applyStyles(baseStyles, styles);
 
-            lineHeight: lineHeight,
-            marginWidth: 25
-        };
+    pdfCalendar.quarterCalendar(date, x, y, styles);
+  };
 
-        styles = applyStyles(baseStyles, styles);
+  /**
+   *
+   * build up the todo area, consisting of a header box
+   * a vertical margin line on the left
+   * and horizontal ruler lines for notes
+   *
+   * @param title - text for header
+   * @param x - upper left x coord
+   * @param y - upper left y coord
+   * @param width - width of area
+   * @param height - height of area
+   * @param styles object with style info (see below)
+   *
+   */
+  this.todoArea = function (title, x, y, width, height, styles) {
+    var baseStyles = {
+      color: RGB.mediumGray,
+      lineColor: RGB.lightBlue,
+      textColor: RGB.white,
+      shadowColor: RGB.lightGray,
 
-        this.ruledArea(title, x, y, width, height, styles);
-
-        // vertical margin line
-        var line = pdf.line(styles.color, 1.0);
-
-        line.doubleLineTo(x + styles.marginWidth, y,
-            x + styles.marginWidth, y + height);
+      lineHeight: lineHeight,
+      marginWidth: 25,
     };
 
-    /**
-     *
-     * build up the todo area, consisting of a header box
-     * a vertical margin line on the left
-     * a wider, vertical margin line on the right
-     * and horizontal ruler lines for notes
-     *
-     * @param title - text for header
-     * @param x - upper left x coord
-     * @param y - upper left y coord
-     * @param width - width of area
-     * @param height - height of area
-     * @param styles object with style info (see below)
-     * 
-     */
-    this.todoWithDateArea = function (title, x, y, width, height, styles) {
-        var baseStyles = {
-            color: RGB.mediumGray,
-            lineColor: RGB.lightBlue,
-            textColor: RGB.white,
-            shadowColor: RGB.lightGray,
+    styles = applyStyles(baseStyles, styles);
 
-            lineHeight: lineHeight,
-            marginWidth: 25
-        };
+    this.ruledArea(title, x, y, width, height, styles);
 
-        styles = applyStyles(baseStyles, styles);
+    // vertical margin line
+    var line = pdf.line(styles.color, 1.0);
 
-        this.ruledArea(title, x, y, width, height, styles);
+    line.doubleLineTo(x + styles.marginWidth, y, x + styles.marginWidth, y + height);
+  };
 
-        // vertical margin line
-        const marginLine = pdf.line(styles.color, 1.0);
+  /**
+   *
+   * build up the todo area, consisting of a header box
+   * a vertical margin line on the left
+   * a wider, vertical margin line on the right
+   * and horizontal ruler lines for notes
+   *
+   * @param title - text for header
+   * @param x - upper left x coord
+   * @param y - upper left y coord
+   * @param width - width of area
+   * @param height - height of area
+   * @param styles object with style info (see below)
+   *
+   */
+  this.todoWithDateArea = function (title, x, y, width, height, styles) {
+    var baseStyles = {
+      color: RGB.mediumGray,
+      lineColor: RGB.lightBlue,
+      textColor: RGB.white,
+      shadowColor: RGB.lightGray,
 
-        marginLine.doubleLineTo(x + styles.marginWidth, y,
-            x + styles.marginWidth, y + height);
-
-        // vertical date line on right
-        const dateLine = pdf.line(styles.color, 1.0);
-        const xDatePos = x + width - (styles.marginWidth*4);
-
-        dateLine.doubleLineTo(xDatePos, y,
-            xDatePos, y + height);
-
+      lineHeight: lineHeight,
+      marginWidth: 25,
     };
 
-    /* private function */
-    var rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
-        // empty ruler lines for notes
+    styles = applyStyles(baseStyles, styles);
 
-        var rulerLine = pdf.line(color, lineWidth);
+    this.ruledArea(title, x, y, width, height, styles);
 
-        while (y < (h)) {
-            rulerLine.horizontal(x, y, w - 1);
+    // vertical margin line
+    const marginLine = pdf.line(styles.color, 1.0);
 
-            y += lineHeight;
-        }
+    marginLine.doubleLineTo(x + styles.marginWidth, y, x + styles.marginWidth, y + height);
+
+    // vertical date line on right
+    const dateLine = pdf.line(styles.color, 1.0);
+    const xDatePos = x + width - styles.marginWidth * 4;
+
+    dateLine.doubleLineTo(xDatePos, y, xDatePos, y + height);
+  };
+
+  /* private function */
+  var rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
+    // empty ruler lines for notes
+
+    var rulerLine = pdf.line(color, lineWidth);
+
+    while (y < h) {
+      rulerLine.horizontal(x, y, w - 1);
+
+      y += lineHeight;
+    }
+  };
+
+  /**
+   *
+   * build up an area with a header and horiz ruler lines for notes
+   *
+   * @param title - text for header
+   * @param x - upper left x coord
+   * @param y - upper left y coord
+   * @param width - width of area
+   * @param height - height of area
+   * @param styles object with style info (see below)
+   *
+   */
+  this.ruledArea = function (title, x, y, width, height, styles) {
+    var baseStyles = {
+      color: RGB.mediumGray,
+      lineColor: RGB.lightBlue,
+      textColor: RGB.white,
+      shadowColor: RGB.lightGray,
+
+      lineHeight: lineHeight,
     };
 
-    /**
-     *
-     * build up an area with a header and horiz ruler lines for notes
-     *
-     * @param title - text for header
-     * @param x - upper left x coord
-     * @param y - upper left y coord
-     * @param width - width of area
-     * @param height - height of area
-     * @param styles object with style info (see below)
-     * 
-     */
-    this.ruledArea = function (title, x, y, width, height, styles) {
+    styles = applyStyles(baseStyles, styles);
 
-        var baseStyles = {
-            color: RGB.mediumGray,
-            lineColor: RGB.lightBlue,
-            textColor: RGB.white,
-            shadowColor: RGB.lightGray,
+    var rectShadow = pdf.rectangle(styles.shadowColor, 0.75);
+    rectShadow.dropShadow(x, y, width, height, 4);
 
-            lineHeight: lineHeight
-        };
+    var lineHeight = styles.lineHeight;
 
-        styles = applyStyles(baseStyles, styles);
+    // header box
+    var rect = pdf.rectangle(styles.color, 0.75);
+    rect.filledQuarterRound(x, y, width, lineHeight, 4);
 
-        var rectShadow = pdf.rectangle(styles.shadowColor, .75);
-        rectShadow.dropShadow(x, y, width, height, 4);
+    var rectBorder = pdf.rectangle(styles.color, 0.75);
+    rectBorder.halfRounded(x, y, width, height, 4);
 
+    var fontHeader = pdf.text('Helvetica', styles.textColor, lineHeight / 2, {
+      align: 'center',
+      width: width,
+      lineBreak: false,
+    });
 
-        var lineHeight = styles.lineHeight;
+    fontHeader.print(title, x, y + lineHeight / 3);
 
-        // header box
-        var rect = pdf.rectangle(styles.color, .75);
-        rect.filledQuarterRound(x, y, width, lineHeight, 4);
+    var yVal = y + lineHeight + lineHeight / 10;
+    var yLine = yVal + lineHeight;
 
-        var rectBorder = pdf.rectangle(styles.color, .75);
-        rectBorder.halfRounded(x, y, width, height, 4);
+    rulerLines(x + 1, yLine, width, y + height, 0.25, lineHeight, styles.lineColor);
+  };
 
-        var fontHeader = pdf.text('Helvetica',
-            styles.textColor,
-            lineHeight / 2, {
-                align: 'center',
-                width: width,
-                lineBreak: false
-            });
+  /**
+   *
+   * build up the notes area, consisting of a shadowed, rounded outer box
+   * a vertical margin line on the left
+   * and horizontal ruler lines for notes
+   *
+   */
+  this.notesArea = function (x, y, width, height, styles) {
+    var baseStyles = {
+      color: RGB.gray,
+      lineColor: RGB.lightBlue,
+      shadowColor: RGB.lightGray,
 
-        fontHeader.print(title, x, y + lineHeight / 3);
-
-        var yVal = y + lineHeight + lineHeight / 10;
-        var yLine = yVal + lineHeight;
-
-        rulerLines(x + 1, yLine, width, y + height, .25, lineHeight, styles.lineColor);
-
+      lineHeight: lineHeight,
+      marginWidth: 77,
     };
 
-    /**
-     *
-     * build up the notes area, consisting of a shadowed, rounded outer box
-     * a vertical margin line on the left
-     * and horizontal ruler lines for notes
-     *
-     */
-    this.notesArea = function (x, y, width, height, styles) {
+    styles = applyStyles(baseStyles, styles);
 
-        var baseStyles = {
-            color: RGB.gray,
-            lineColor: RGB.lightBlue,
-            shadowColor: RGB.lightGray,
+    var rect = pdf.rectangle(styles.color, 0.75);
+    rect.shadowRect(x, y, width, height, 4, styles.shadowColor);
 
-            lineHeight: lineHeight,
-            marginWidth: 77
-        };
+    // empty ruler lines for notes
+    rulerLines(
+      x + 1,
+      y + styles.lineHeight,
+      width,
+      y + height,
+      0.25,
+      styles.lineHeight,
+      styles.lineColor,
+    );
 
-        styles = applyStyles(baseStyles, styles);
+    // vertical margin line
+    var line = pdf.line(styles.color, 1.0);
 
-        var rect = pdf.rectangle(styles.color, .75);
-        rect.shadowRect(x, y, width, height, 4, styles.shadowColor);
+    line.doubleLineTo(x + styles.marginWidth, y, x + styles.marginWidth, y + height);
+  };
 
-        // empty ruler lines for notes
-        rulerLines(x + 1, y + styles.lineHeight, width, y + height, .25,
-            styles.lineHeight, styles.lineColor);
+  /* private function */
+  var daysRemainingInYear = function (date) {
+    var days = dateutils.daysRemainingInYear(date);
+    var str = '';
 
-        // vertical margin line
-        var line = pdf.line(styles.color, 1.0);
-
-        line.doubleLineTo(x + styles.marginWidth, y,
-            x + styles.marginWidth, y + height);
-    };
-
-    /* private function */
-    var daysRemainingInYear = function (date) {
-        var days = dateutils.daysRemainingInYear(date);
-        var str = "";
-
-        switch (days) {
-            case 0:
-                str = "Last day of the year";
-                break;
-            case 1:
-                str = "1 day left this year";
-                break;
-            default:
-                str = days.toString() + " days left this year";
-        };
-
-        return str;
-    };
-
-    /* private function */
-    var daysRemainingInQuarter = function (date) {
-        var days = dateutils.daysRemainingInQuarter(date);
-        var str = "";
-
-        switch (days) {
-            case 0:
-                str = "Last day of the quarter";
-                break;
-            case 1:
-                str = "1 day left this quarter";
-                break;
-            default:
-                str = days.toString() + " days left this quarter";
-        }
-
-        return str;
-    };
-
-    /**
-     * puts informational text at x, y
-     * 
-     * @param date - date to use for factoids
-     *  @param x - upper left x coord
-     * @param y - upper left y coord
-     * @param styles object with style info (see below)
-     */
-    this.factoids = function (date, x, y, styles) {
-
-        var baseStyles = {
-            color: RGB.mediumGray,
-            size: 5.5
-        };
-
-        styles = applyStyles(baseStyles, styles);
-
-        var text = pdf.text('Helvetica',
-            styles.color,
-            styles.size, {
-                align: 'left',
-                lineBreak: false
-            });
-        var str = daysRemainingInYear(date);
-
-        text.print(str, x, y);
-
-
-        var height = text.height(str);
-        var str = daysRemainingInQuarter(date);
-
-        text.print(str, x, y + height + styles.size / 5);
+    switch (days) {
+      case 0:
+        str = 'Last day of the year';
+        break;
+      case 1:
+        str = '1 day left this year';
+        break;
+      default:
+        str = days.toString() + ' days left this year';
     }
 
-    /**
-     * renders an IBM 8 bar logo via SVG paths
-     *
-     * @param x - upper left x coord
-     * @param y - upper left y coord
-     * @param styles object with style info (see below)
-     */
-    this.ibmLogo = function (x, y, styles) {
+    return str;
+  };
 
-        var baseStyles = {
-            color: RGB.mediumGray
-        };
+  /* private function */
+  var daysRemainingInQuarter = function (date) {
+    var days = dateutils.daysRemainingInQuarter(date);
+    var str = '';
 
-        styles = applyStyles(baseStyles, styles);
+    switch (days) {
+      case 0:
+        str = 'Last day of the quarter';
+        break;
+      case 1:
+        str = '1 day left this quarter';
+        break;
+      default:
+        str = days.toString() + ' days left this quarter';
+    }
 
-        var ibmLogo = new IBMLogo(pdf);
+    return str;
+  };
 
-        ibmLogo.color = styles.color;
-        ibmLogo.scaleFactor = 0.05; // the logo at 100% is huge.. scale it down to 5%
-        ibmLogo.draw(x, y);
+  /**
+   * puts informational text at x, y
+   *
+   * @param date - date to use for factoids
+   *  @param x - upper left x coord
+   * @param y - upper left y coord
+   * @param styles object with style info (see below)
+   */
+  this.factoids = function (date, x, y, styles) {
+    var baseStyles = {
+      color: RGB.mediumGray,
+      size: 5.5,
     };
 
-};
+    styles = applyStyles(baseStyles, styles);
 
+    var text = pdf.text('Helvetica', styles.color, styles.size, {
+      align: 'left',
+      lineBreak: false,
+    });
+    var str = daysRemainingInYear(date);
+
+    text.print(str, x, y);
+
+    var height = text.height(str);
+    var str = daysRemainingInQuarter(date);
+
+    text.print(str, x, y + height + styles.size / 5);
+  };
+
+  /**
+   * renders an IBM 8 bar logo via SVG paths
+   *
+   * @param x - upper left x coord
+   * @param y - upper left y coord
+   * @param styles object with style info (see below)
+   */
+  this.ibmLogo = function (x, y, styles) {
+    var baseStyles = {
+      color: RGB.mediumGray,
+    };
+
+    styles = applyStyles(baseStyles, styles);
+
+    const scaleFactor = 0.05; // the logo at 100% is huge.. scale it down
+    var path = pdf.svg(styles.color, scaleFactor);
+
+    path.render(IBMLogo, x, y);
+  };
+
+  /**
+   * renders Charity Navigator logo via SVG paths
+   *
+   * @param x - upper left x coord
+   * @param y - upper left y coord
+   * @param styles object with style info (see below)
+   */
+  this.cnLogo = function (x, y, styles) {
+    const color = undefined; // don't override the color in the SVG
+    const scaleFactor = 0.09; // the logo at 100% is huge.. scale it down
+    var path = pdf.svg(color, scaleFactor);
+
+    path.render(CNLogo, x, y);
+  };
+}
 
 module.exports = PageDetails;
