@@ -7,11 +7,11 @@ function Planner(date) {
 
     var getCurrentPageMargins = function () {
         // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
-        //                  off the top of page on inkjet printers.
+        //                  off the top of page on inkjet printers. (COVID-19)
         var margin = {
             left: 30,
             width: 520,
-            top: 15,    // minimum we can start from top 
+            top: 15, // minimum we can start from top 
             height: 767 // maximum height of page
         };
 
@@ -46,7 +46,10 @@ function Planner(date) {
     };
 
 
-    this.renderTodo = function () {
+    /**
+     * renders a page with todo list at the top, note taking area below
+     */
+    this.renderTodoAndNotes = function () {
         var page = new PageDetails(doc);
         var margin = getCurrentPageMargins();
 
@@ -97,6 +100,68 @@ function Planner(date) {
         stylesNotes.color = page.colors.mediumGray;
 
         page.notesArea(margin.left,
+            startY + todoHeight,
+            margin.width,
+            margin.height - startY - todoHeight,
+            stylesNotes);
+
+    };
+
+    /**
+     * lays out a To-do page where the To-do list occupies the full page
+     */
+    this.renderTodo = function () {
+        var page = new PageDetails(doc);
+        var margin = getCurrentPageMargins();
+
+        page.dayLabel(date, margin.left, margin.top + 10, {
+            color: page.colors.gray,
+            size: 45,
+            width: 80
+        });
+
+        page.monthLabel(date, margin.left, margin.top + 50, {
+            color: page.colors.gray,
+            width: 80,
+            size: 28
+        });
+
+        page.quarterCalendar(date, margin.left + 95, margin.top);
+
+        var rightMargin = margin.left + margin.width;
+
+        // offset factoids and ibm logo from right margin
+        page.factoids(date, rightMargin - 150, margin.top);
+        page.ibmLogo(rightMargin - 50, margin.top);
+
+        var startY = margin.top + 50 + 45;
+        var todoHeight = styles.lineHeight * 7;
+        var workItemsWidth = 250;
+
+        var homeItemsHeight = styles.lineHeight * 5;
+        var secondColumn = margin.left + workItemsWidth + 10;
+
+        page.todoArea("Personal Items",
+            margin.left,
+            startY,
+            workItemsWidth,
+            todoHeight,
+            styles);
+
+        page.ruledArea("Reminders", 
+            secondColumn,
+            startY,
+            rightMargin - secondColumn,
+            todoHeight,
+            styles);
+
+        todoHeight += 20;
+
+        var stylesNotes = JSON.parse(JSON.stringify(styles));
+        stylesNotes.color = page.colors.mediumGray;
+
+        page.todoWithDateArea("Work Items",
+            margin.left,
             startY + todoHeight,
             margin.width,
             margin.height - startY - todoHeight,

@@ -4,6 +4,11 @@
  * notes page on the back, tailored for the given date
  *
  * @djboulia [12/8/2016]
+ * 
+ * Change History
+ * 12/8/2016 -  Initial version
+ * 8/27/2020 -  Modified to produce a single, full page todo for 
+ *              integration with Good Notes (iPad/Mac)
  *
  **/
 
@@ -26,7 +31,5 @@ var doc = new Planner(config.date);
 doc.open(fs.createWriteStream(config.filename));
 
 doc.renderTodo();
-doc.newPage();
-doc.renderNotes();
 
 doc.close();

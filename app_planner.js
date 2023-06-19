@@ -31,7 +31,5 @@ var planner = new Planner(config.date);
 planner.open(fs.createWriteStream(config.filename));
 
 planner.renderNotes();
-planner.newPage();
-planner.renderNotes();
 
 planner.close();

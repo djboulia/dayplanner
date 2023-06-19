@@ -132,6 +132,51 @@ function PageDetails(document) {
             x + styles.marginWidth, y + height);
     };
 
+    /**
+     *
+     * build up the todo area, consisting of a header box
+     * a vertical margin line on the left
+     * a wider, vertical margin line on the right
+     * and horizontal ruler lines for notes
+     *
+     * @param title - text for header
+     * @param x - upper left x coord
+     * @param y - upper left y coord
+     * @param width - width of area
+     * @param height - height of area
+     * @param styles object with style info (see below)
+     * 
+     */
+    this.todoWithDateArea = function (title, x, y, width, height, styles) {
+        var baseStyles = {
+            color: RGB.mediumGray,
+            lineColor: RGB.lightBlue,
+            textColor: RGB.white,
+            shadowColor: RGB.lightGray,
+
+            lineHeight: lineHeight,
+            marginWidth: 25
+        };
+
+        styles = applyStyles(baseStyles, styles);
+
+        this.ruledArea(title, x, y, width, height, styles);
+
+        // vertical margin line
+        const marginLine = pdf.line(styles.color, 1.0);
+
+        marginLine.doubleLineTo(x + styles.marginWidth, y,
+            x + styles.marginWidth, y + height);
+
+        // vertical date line on right
+        const dateLine = pdf.line(styles.color, 1.0);
+        const xDatePos = x + width - (styles.marginWidth*4);
+
+        dateLine.doubleLineTo(xDatePos, y,
+            xDatePos, y + height);
+
+    };
+
     /* private function */
     var rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
         // empty ruler lines for notes
