@@ -18,7 +18,7 @@ function Planner(date, theme, logo) {
       logo: {
         color: undefined,
         scale: 1.0,
-        svg: undefined, // see IBMLogo.js or CNLogo.js for example
+        svg: undefined, // no logo by default - see IBMLogo.js or CNLogo.js for example
       },
     };
   }
@@ -26,18 +26,19 @@ function Planner(date, theme, logo) {
   var getCurrentPageMargins = function () {
     // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
     //                  off the top of page on inkjet printers. (COVID-19)
-    var margin = {
-      left: 30,
-      width: 520,
-      top: 15, // minimum we can start from top
-      height: 767, // maximum height of page
-    };
 
     // odd pages have an additional offset on the left
     // to allow for hole punching/binding
-    if (pageNumber % 2 == 1) {
-      margin.left += 25;
-    }
+    const left = pageNumber % 2 == 1 ? 55 : 30;
+    const width = 520;
+
+    const margin = {
+      left: left,
+      right: left + width,
+      width: width,
+      top: 15, // minimum we can start from top
+      height: 767, // maximum height of page
+    };
 
     return margin;
   };
@@ -63,91 +64,7 @@ function Planner(date, theme, logo) {
     pageNumber++;
   };
 
-  /**
-   * renders a page with todo list at the top, note taking area below
-   */
-  this.renderTodoAndNotes = function () {
-    var page = new PageDetails(doc);
-    var margin = getCurrentPageMargins();
-
-    page.dayLabel(date, margin.left, margin.top + 10, {
-      color: theme.colorDay,
-      size: 45,
-      width: 80,
-    });
-
-    page.monthLabel(date, margin.left, margin.top + 50, {
-      color: theme.colorMonth,
-      width: 80,
-      size: 28,
-    });
-
-    var stylesCalendar = JSON.parse(JSON.stringify(styles));
-    stylesCalendar.color = theme.colorCalendar;
-    stylesCalendar.highlightColor = theme.colorCalendar;
-    stylesCalendar.backgroundColor = RGB.white;
-
-    page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
-
-    var rightMargin = margin.left + margin.width;
-
-    // offset factoids and  logo from right margin
-    page.factoids(date, rightMargin - 150, margin.top, stylesCalendar);
-
-    const logo = theme.logo;
-    if (logo && logo.svg) {
-      page.logo(logo.svg, rightMargin - 50, margin.top, { color: logo.color, scale: logo.scale });
-    }
-
-    var startY = margin.top + 50 + 45;
-    var todoHeight = styles.lineHeight * 7;
-    var workItemsWidth = 250;
-
-    page.todoArea('Work Items', margin.left, startY, workItemsWidth, todoHeight, styles);
-
-    var homeItemsHeight = styles.lineHeight * 5;
-    var secondColumn = margin.left + workItemsWidth + 10;
-
-    var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = theme.colorNotesHeader;
-    stylesNotes.lineColor = theme.colorNotesRulerLines;
-
-    page.todoArea(
-      'Personal Items',
-      secondColumn,
-      margin.top + 30,
-      rightMargin - secondColumn,
-      homeItemsHeight,
-      stylesNotes,
-    );
-
-    page.ruledArea(
-      'Reminders',
-      secondColumn,
-      margin.top + homeItemsHeight + 50,
-      rightMargin - secondColumn,
-      startY + todoHeight - (margin.top + homeItemsHeight + 50),
-      stylesNotes,
-    );
-
-    todoHeight += 20;
-
-    page.notesArea(
-      margin.left,
-      startY + todoHeight,
-      margin.width,
-      margin.height - startY - todoHeight,
-      stylesNotes,
-    );
-  };
-
-  /**
-   * lays out a To-do page where the To-do list occupies the full page
-   */
-  this.renderTodo = function () {
-    var page = new PageDetails(doc);
-    var margin = getCurrentPageMargins();
-
+  const renderTopHeader = function (page, margin) {
     page.dayLabel(date, margin.left, margin.top, {
       color: theme.colorDay,
       size: 45,
@@ -167,18 +84,84 @@ function Planner(date, theme, logo) {
 
     page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
-    var rightMargin = margin.left + margin.width;
-
     // offset factoids and logo from right margin
-    page.factoids(date, rightMargin - 160, margin.top + 53, stylesCalendar);
+    page.factoids(date, margin.right - 60, margin.top + 70, stylesCalendar);
 
     const logo = theme.logo;
     if (logo && logo.svg) {
-      page.logo(logo.svg, rightMargin - 75, margin.top, { color: logo.color, scale: logo.scale });
+      page.logo(logo.svg, margin.right - 75, margin.top, {
+        color: logo.color,
+        scale: logo.scale,
+      });
     }
+  };
+
+  /**
+   * renders a page with todo list at the top, note taking area below
+   */
+  this.renderTodoAndNotes = function () {
+    var page = new PageDetails(doc);
+    var margin = getCurrentPageMargins();
+
+    renderTopHeader(page, margin);
 
     var startY = margin.top + 50 + 45;
-    var todoHeight = styles.lineHeight * 7;
+    var todoHeight = styles.lineHeight * 10;
+    var workItemsWidth = 250;
+
+    var stylesNotes = JSON.parse(JSON.stringify(styles));
+    stylesNotes.color = theme.colorNotesHeader;
+    stylesNotes.lineColor = theme.colorNotesRulerLines;
+
+    page.todoArea('Work Items', margin.left, startY, workItemsWidth, todoHeight, stylesNotes);
+
+    var homeItemsHeight = styles.lineHeight * 5;
+    var secondColumn = margin.left + workItemsWidth + 10;
+
+    const width = margin.width - secondColumn;
+    console.log('secondColumn: ' + secondColumn + ' margin.width-secondColumn: ' + width);
+
+    page.todoArea(
+      'Personal Items',
+      secondColumn,
+      startY,
+      margin.right - secondColumn,
+      homeItemsHeight,
+      stylesNotes,
+    );
+
+    page.ruledArea(
+      'Reminders',
+      secondColumn,
+      startY + homeItemsHeight + 20,
+      margin.right - secondColumn,
+      startY + todoHeight - (startY + homeItemsHeight + 20),
+      stylesNotes,
+    );
+
+    todoHeight += 20;
+
+    console.log('margin.left ' + margin.left + ', margin.width ' + margin.width);
+    page.notesArea(
+      margin.left,
+      startY + todoHeight,
+      margin.width,
+      margin.height - startY - todoHeight,
+      stylesNotes,
+    );
+  };
+
+  /**
+   * lays out a To-do page where the To-do list occupies the full page
+   */
+  this.renderTodo = function () {
+    var page = new PageDetails(doc);
+    var margin = getCurrentPageMargins();
+
+    renderTopHeader(page, margin);
+
+    var startY = margin.top + 50 + 45;
+    var todoHeight = styles.lineHeight * 7 + 3;
     var workItemsWidth = 250;
 
     var secondColumn = margin.left + workItemsWidth + 10;
@@ -193,7 +176,7 @@ function Planner(date, theme, logo) {
       'Reminders',
       secondColumn,
       startY,
-      rightMargin - secondColumn,
+      margin.right - secondColumn,
       todoHeight,
       stylesNotes,
     );
@@ -205,7 +188,7 @@ function Planner(date, theme, logo) {
       margin.left,
       startY + todoHeight,
       margin.width,
-      margin.height - startY - todoHeight,
+      margin.height - startY - todoHeight - 14,
       stylesNotes,
     );
   };
@@ -227,11 +210,9 @@ function Planner(date, theme, logo) {
 
     page.twoMonthCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
-    var rightMargin = margin.left + margin.width;
-
     const logo = theme.logo;
     if (logo && logo.svg) {
-      page.logo(logo.svg, rightMargin - 75, margin.top, { color: logo.color, scale: logo.scale });
+      page.logo(logo.svg, margin.right - 75, margin.top, { color: logo.color, scale: logo.scale });
     }
 
     var stylesNotes = JSON.parse(JSON.stringify(styles));
