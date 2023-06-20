@@ -9,7 +9,7 @@ var doc = new PDFDocument({
   size: 'letter',
 });
 
-console.log('Generating Charity Navigator logo ');
+console.log('Testing two different logos on a page.');
 
 doc.pipe(fs.createWriteStream('out.pdf'));
 
