@@ -7,51 +7,26 @@
  *
  **/
 
-var Planner = require('./planner.js');
 var fs = require('fs');
 
-var DateUtils = require('./dateutils.js');
-var dateutils = new DateUtils();
-
 var CmdLine = require('./cmdline.js');
+var DateUtils = require('./dateutils.js');
+var Planner = require('./planner.js');
+var theme = require('./theme.js');
+
 var cmdLine = new CmdLine();
-
-var CNLogo = require('./cnlogo.js');
-
 var config = cmdLine.parse();
-
 if (!config) {
   cmdLine.printUsageAndExit();
 }
 
+var dateutils = new DateUtils();
 var month = dateutils.getMonthName(config.date.getMonth());
 
 console.log('Generating planner for month ' + month);
 
-var CHARITY_NAVIGATOR = {
-  green: '#89e260',
-  blue: '#3f5df5',
-  black: '#011936',
-};
-
-var theme = {
-  dateDay: CHARITY_NAVIGATOR.blue,
-  dateMonth: CHARITY_NAVIGATOR.black,
-  calendar: CHARITY_NAVIGATOR.black,
-  notesHeader: CHARITY_NAVIGATOR.black,
-  notesRulerLines: CHARITY_NAVIGATOR.blue,
-};
-
-var logo = {
-  color: undefined,
-  scale: 0.125,
-  svg: CNLogo,
-};
-
-var planner = new Planner(config.date, theme, logo);
+var planner = new Planner(config.date, theme);
 
 planner.open(fs.createWriteStream(config.filename));
-
 planner.renderNotes();
-
 planner.close();

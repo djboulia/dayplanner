@@ -10,20 +10,16 @@ function Planner(date, theme, logo) {
   if (!theme) {
     // default theme
     theme = {
-      dateDay: RGB.gray,
-      dateMonth: RGB.gray,
-      calendar: RGB.mediumGray,
-      notesHeader: RGB.mediumGray,
-      notesRulerLines: RGB.lightBlue,
-    };
-  }
-
-  if (!logo) {
-    // default is no logo
-    logo = {
-      color: undefined,
-      scale: 1.0,
-      svg: undefined,
+      colorDay: RGB.gray,
+      colorMonth: RGB.gray,
+      colorCalendar: RGB.mediumGray,
+      colorNotesHeader: RGB.mediumGray,
+      colorNotesRulerLines: RGB.lightBlue,
+      logo: {
+        color: undefined,
+        scale: 1.0,
+        svg: undefined, // see IBMLogo.js or CNLogo.js for example
+      },
     };
   }
 
@@ -75,29 +71,33 @@ function Planner(date, theme, logo) {
     var margin = getCurrentPageMargins();
 
     page.dayLabel(date, margin.left, margin.top + 10, {
-      color: theme.dateDay,
+      color: theme.colorDay,
       size: 45,
       width: 80,
     });
 
     page.monthLabel(date, margin.left, margin.top + 50, {
-      color: theme.dateMonth,
+      color: theme.colorMonth,
       width: 80,
       size: 28,
     });
 
     var stylesCalendar = JSON.parse(JSON.stringify(styles));
-    stylesCalendar.color = theme.calendar;
-    stylesCalendar.highlightColor = theme.calendar;
+    stylesCalendar.color = theme.colorCalendar;
+    stylesCalendar.highlightColor = theme.colorCalendar;
     stylesCalendar.backgroundColor = RGB.white;
 
     page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
     var rightMargin = margin.left + margin.width;
 
-    // offset factoids and ibm logo from right margin
+    // offset factoids and  logo from right margin
     page.factoids(date, rightMargin - 150, margin.top, stylesCalendar);
-    page.logo(logo, rightMargin - 50, margin.top);
+
+    const logo = theme.logo;
+    if (logo && logo.svg) {
+      page.logo(logo.svg, rightMargin - 50, margin.top, { color: logo.color, scale: logo.scale });
+    }
 
     var startY = margin.top + 50 + 45;
     var todoHeight = styles.lineHeight * 7;
@@ -109,8 +109,8 @@ function Planner(date, theme, logo) {
     var secondColumn = margin.left + workItemsWidth + 10;
 
     var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = theme.notesHeader;
-    stylesNotes.lineColor = theme.notesRulerLines;
+    stylesNotes.color = theme.colorNotesHeader;
+    stylesNotes.lineColor = theme.colorNotesRulerLines;
 
     page.todoArea(
       'Personal Items',
@@ -149,29 +149,33 @@ function Planner(date, theme, logo) {
     var margin = getCurrentPageMargins();
 
     page.dayLabel(date, margin.left, margin.top, {
-      color: theme.dateDay,
+      color: theme.colorDay,
       size: 45,
       width: 80,
     });
 
     page.monthLabel(date, margin.left, margin.top + 50, {
-      color: theme.dateMonth,
+      color: theme.colorMonth,
       width: 80,
       size: 28,
     });
 
     var stylesCalendar = JSON.parse(JSON.stringify(styles));
-    stylesCalendar.color = theme.calendar;
-    stylesCalendar.highlightColor = theme.calendar;
+    stylesCalendar.color = theme.colorCalendar;
+    stylesCalendar.highlightColor = theme.colorCalendar;
     stylesCalendar.backgroundColor = RGB.white;
 
     page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
     var rightMargin = margin.left + margin.width;
 
-    // offset factoids and ibm logo from right margin
+    // offset factoids and logo from right margin
     page.factoids(date, rightMargin - 160, margin.top + 53, stylesCalendar);
-    page.logo(logo, rightMargin - 75, margin.top);
+
+    const logo = theme.logo;
+    if (logo && logo.svg) {
+      page.logo(logo.svg, rightMargin - 75, margin.top, { color: logo.color, scale: logo.scale });
+    }
 
     var startY = margin.top + 50 + 45;
     var todoHeight = styles.lineHeight * 7;
@@ -180,8 +184,8 @@ function Planner(date, theme, logo) {
     var secondColumn = margin.left + workItemsWidth + 10;
 
     var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = theme.notesHeader;
-    stylesNotes.lineColor = theme.notesRulerLines;
+    stylesNotes.color = theme.colorNotesHeader;
+    stylesNotes.lineColor = theme.colorNotesRulerLines;
 
     page.todoArea('Personal Items', margin.left, startY, workItemsWidth, todoHeight, stylesNotes);
 
@@ -211,24 +215,28 @@ function Planner(date, theme, logo) {
     var margin = getCurrentPageMargins();
 
     page.monthLabel(date, margin.left, margin.top, {
-      color: theme.dateMonth,
+      color: theme.colorMonth,
       width: 80,
       size: 28,
     });
 
     var stylesCalendar = JSON.parse(JSON.stringify(styles));
-    stylesCalendar.color = theme.calendar;
-    stylesCalendar.highlightColor = theme.calendar;
+    stylesCalendar.color = theme.colorCalendar;
+    stylesCalendar.highlightColor = theme.colorCalendar;
     stylesCalendar.backgroundColor = RGB.white;
 
     page.twoMonthCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
     var rightMargin = margin.left + margin.width;
-    page.logo(logo, rightMargin - 75, margin.top);
+
+    const logo = theme.logo;
+    if (logo && logo.svg) {
+      page.logo(logo.svg, rightMargin - 75, margin.top, { color: logo.color, scale: logo.scale });
+    }
 
     var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = theme.notesHeader;
-    stylesNotes.lineColor = theme.notesRulerLines;
+    stylesNotes.color = theme.colorNotesHeader;
+    stylesNotes.lineColor = theme.colorNotesRulerLines;
 
     page.notesArea(margin.left, margin.top + 41, margin.width, margin.height - 54, stylesNotes);
   };

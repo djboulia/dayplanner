@@ -335,11 +335,11 @@ function PageDetails(document) {
    * @param y - upper left y coord
    * @param styles object with style info (see below)
    */
-  this.logo = function (logo, x, y, styles) {
-    if (logo && logo.svg) {
-      var path = pdf.svg(logo.color, logo.scale);
+  this.logo = function (svg, x, y, styles) {
+    if (svg) {
+      var path = pdf.svg(styles.color, styles.scale);
 
-      path.render(logo.svg, x, y);
+      path.render(svg, x, y);
     }
   };
 }
