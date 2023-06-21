@@ -1,4 +1,4 @@
-var RGB = {
+const RGB = {
   white: '#FFFFFF',
   black: '#000000',
   darkGray: '#333333',

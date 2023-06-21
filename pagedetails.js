@@ -1,24 +1,24 @@
-var DateUtils = require('./dateutils.js');
-var PDFCalendar = require('./pdfcalendar.js');
-var PDFDrawing = require('./pdfdrawing.js');
+const DateUtils = require('./dateutils.js');
+const PDFCalendar = require('./pdfcalendar.js');
+const PDFDrawing = require('./pdfdrawing.js');
 
-var RGB = require('./rgb.js');
+const RGB = require('./rgb.js');
 
-var dateutils = new DateUtils();
+const dateutils = new DateUtils();
 
-var applyStyles = function (defaultStyles, userStyles) {
+const applyStyles = function (defaultStyles, userStyles) {
   defaultStyles = defaultStyles || {};
   userStyles = userStyles || {};
 
-  var mergedStyles = {};
+  const mergedStyles = {};
 
-  for (var attrname in defaultStyles) {
+  for (let attrname in defaultStyles) {
     mergedStyles[attrname] = defaultStyles[attrname];
   }
 
   // now apply any user defined styles.  note that any user styles
   // will override the default
-  for (var attrname in userStyles) {
+  for (let attrname in userStyles) {
     mergedStyles[attrname] = userStyles[attrname];
   }
 
@@ -26,14 +26,14 @@ var applyStyles = function (defaultStyles, userStyles) {
 };
 
 function PageDetails(document) {
-  var pdf = new PDFDrawing(document);
-  var pdfCalendar = new PDFCalendar(document);
+  const pdf = new PDFDrawing(document);
+  const pdfCalendar = new PDFCalendar(document);
 
-  var lineHeight = 21;
+  const lineHeight = 21;
 
   this.dayLabel = function (theDate, x, y, styles) {
     // default styles
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.gray,
       size: 45,
       width: 70,
@@ -45,7 +45,7 @@ function PageDetails(document) {
   };
 
   this.monthLabel = function (theDate, x, y, styles) {
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.gray,
       width: 90,
       size: 25,
@@ -57,7 +57,7 @@ function PageDetails(document) {
   };
 
   this.twoMonthCalendar = function (date, x, y, styles) {
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.gray,
       size: 5,
     };
@@ -68,7 +68,7 @@ function PageDetails(document) {
   };
 
   this.quarterCalendar = function (date, x, y, styles) {
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.gray,
       highlightColor: RGB.mediumGray,
       backgroundColor: RGB.white,
@@ -95,7 +95,7 @@ function PageDetails(document) {
    *
    */
   this.todoArea = function (title, x, y, width, height, styles) {
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.mediumGray,
       lineColor: RGB.lightBlue,
       textColor: RGB.white,
@@ -110,7 +110,7 @@ function PageDetails(document) {
     this.ruledArea(title, x, y, width, height, styles);
 
     // vertical margin line
-    var line = pdf.line(styles.color, 1.0);
+    const line = pdf.line(styles.color, 1.0);
 
     line.doubleLineTo(x + styles.marginWidth, y, x + styles.marginWidth, y + height);
   };
@@ -131,7 +131,7 @@ function PageDetails(document) {
    *
    */
   this.todoWithDateArea = function (title, x, y, width, height, styles) {
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.mediumGray,
       lineColor: RGB.lightBlue,
       textColor: RGB.white,
@@ -158,10 +158,10 @@ function PageDetails(document) {
   };
 
   /* private function */
-  var rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
+  const rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
     // empty ruler lines for notes
 
-    var rulerLine = pdf.line(color, lineWidth);
+    const rulerLine = pdf.line(color, lineWidth);
 
     while (y < h) {
       rulerLine.horizontal(x, y, w - 1);
@@ -183,7 +183,9 @@ function PageDetails(document) {
    *
    */
   this.ruledArea = function (title, x, y, width, height, styles) {
-    var baseStyles = {
+    const lineHeight = styles.lineHeight;
+
+    const baseStyles = {
       color: RGB.mediumGray,
       lineColor: RGB.lightBlue,
       textColor: RGB.white,
@@ -194,19 +196,17 @@ function PageDetails(document) {
 
     styles = applyStyles(baseStyles, styles);
 
-    var rectShadow = pdf.rectangle(styles.shadowColor, 0.75);
+    const rectShadow = pdf.rectangle(styles.shadowColor, 0.75);
     rectShadow.dropShadow(x, y, width, height, 4);
 
-    var lineHeight = styles.lineHeight;
-
     // header box
-    var rect = pdf.rectangle(styles.color, 0.75);
+    const rect = pdf.rectangle(styles.color, 0.75);
     rect.filledQuarterRound(x, y, width, lineHeight, 4);
 
-    var rectBorder = pdf.rectangle(styles.color, 0.75);
+    const rectBorder = pdf.rectangle(styles.color, 0.75);
     rectBorder.halfRounded(x, y, width, height, 4);
 
-    var fontHeader = pdf.text('Helvetica', styles.textColor, lineHeight / 2, {
+    const fontHeader = pdf.text('Helvetica', styles.textColor, lineHeight / 2, {
       align: 'center',
       width: width,
       lineBreak: false,
@@ -214,8 +214,8 @@ function PageDetails(document) {
 
     fontHeader.print(title, x, y + lineHeight / 3);
 
-    var yVal = y + lineHeight + lineHeight / 10;
-    var yLine = yVal + lineHeight;
+    const yVal = y + lineHeight + lineHeight / 10;
+    const yLine = yVal + lineHeight;
 
     rulerLines(x + 1, yLine, width, y + height, 0.25, lineHeight, styles.lineColor);
   };
@@ -228,7 +228,7 @@ function PageDetails(document) {
    *
    */
   this.notesArea = function (x, y, width, height, styles) {
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.gray,
       lineColor: RGB.lightBlue,
       shadowColor: RGB.lightGray,
@@ -239,7 +239,7 @@ function PageDetails(document) {
 
     styles = applyStyles(baseStyles, styles);
 
-    var rect = pdf.rectangle(styles.color, 0.75);
+    const rect = pdf.rectangle(styles.color, 0.75);
     rect.shadowRect(x, y, width, height, 4, styles.shadowColor);
 
     // empty ruler lines for notes
@@ -254,15 +254,15 @@ function PageDetails(document) {
     );
 
     // vertical margin line
-    var line = pdf.line(styles.color, 1.0);
+    const line = pdf.line(styles.color, 1.0);
 
     line.doubleLineTo(x + styles.marginWidth, y, x + styles.marginWidth, y + height);
   };
 
   /* private function */
-  var daysRemainingInYear = function (date) {
-    var days = dateutils.daysRemainingInYear(date);
-    var str = '';
+  const daysRemainingInYear = function (date) {
+    const days = dateutils.daysRemainingInYear(date);
+    let str = '';
 
     switch (days) {
       case 0:
@@ -279,9 +279,9 @@ function PageDetails(document) {
   };
 
   /* private function */
-  var daysRemainingInQuarter = function (date) {
-    var days = dateutils.daysRemainingInQuarter(date);
-    var str = '';
+  const daysRemainingInQuarter = function (date) {
+    const days = dateutils.daysRemainingInQuarter(date);
+    let str = '';
 
     switch (days) {
       case 0:
@@ -306,24 +306,23 @@ function PageDetails(document) {
    * @param styles object with style info (see below)
    */
   this.factoids = function (date, x, y, styles) {
-    var baseStyles = {
+    const baseStyles = {
       color: RGB.mediumGray,
       size: 5.5,
     };
 
     styles = applyStyles(baseStyles, styles);
 
-    var text = pdf.text('Helvetica', styles.color, styles.size, {
+    const text = pdf.text('Helvetica', styles.color, styles.size, {
       align: 'left',
       lineBreak: false,
     });
-    var str = daysRemainingInYear(date);
 
+    let str = daysRemainingInYear(date);
     text.print(str, x, y);
 
-    var height = text.height(str);
-    var str = daysRemainingInQuarter(date);
-
+    const height = text.height(str);
+    str = daysRemainingInQuarter(date);
     text.print(str, x, y + height + styles.size / 5);
   };
 
@@ -337,7 +336,7 @@ function PageDetails(document) {
    */
   this.logo = function (svg, x, y, styles) {
     if (svg) {
-      var path = pdf.svg(styles.color, styles.scale);
+      const path = pdf.svg(styles.color, styles.scale);
 
       path.render(svg, x, y);
     }

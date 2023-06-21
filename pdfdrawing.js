@@ -1,5 +1,5 @@
-var lineObject = function (document, color, lineWidth) {
-  var doc = document;
+const lineObject = function (document, color, lineWidth) {
+  const doc = document;
 
   this.lineTo = function (x1, y1, x2, y2) {
     doc.save();
@@ -44,8 +44,8 @@ var lineObject = function (document, color, lineWidth) {
   };
 };
 
-var rectangleObject = function (document, color, lineWidth) {
-  var doc = document;
+const rectangleObject = function (document, color, lineWidth) {
+  const doc = document;
 
   this.halfRounded = function (x, y, w, h, r) {
     doc.strokeColor(color);
@@ -104,7 +104,7 @@ var rectangleObject = function (document, color, lineWidth) {
   this.shadowRect = function (x, y, w, h, shadowWidth, shadowColor) {
     doc.save();
 
-    var rectShadow = new rectangleObject(doc, shadowColor, 0.75);
+    const rectShadow = new rectangleObject(doc, shadowColor, 0.75);
     rectShadow.dropShadow(x, y, w, h, shadowWidth);
 
     this.halfRounded(x, y, w, h, shadowWidth);
@@ -113,8 +113,8 @@ var rectangleObject = function (document, color, lineWidth) {
   };
 };
 
-var textObject = function (document, fontName, color, size, options) {
-  var doc = document;
+const textObject = function (document, fontName, color, size, options) {
+  const doc = document;
 
   this.width = function (str) {
     doc.fillColor(color);
@@ -133,7 +133,7 @@ var textObject = function (document, fontName, color, size, options) {
   };
 
   this.characterSpacing = function (str, width) {
-    var stringWidth = this.width(str);
+    const stringWidth = this.width(str);
 
     return (width - stringWidth) / (str.length - 1);
   };
@@ -152,11 +152,11 @@ var textObject = function (document, fontName, color, size, options) {
     doc.fontSize(size);
 
     // find the appropriate character spacing for the desired width
-    var charSpacing = this.characterSpacing(str, width);
+    const charSpacing = this.characterSpacing(str, width);
 
-    var optionsCharSpacing = {};
+    const optionsCharSpacing = {};
 
-    for (var prop in options) {
+    for (let prop in options) {
       if (options.hasOwnProperty(prop)) {
         optionsCharSpacing[prop] = options[prop];
       }
@@ -172,12 +172,12 @@ var textObject = function (document, fontName, color, size, options) {
     doc.fontSize(size);
 
     // find the appropriate character spacing for the desired width
-    var strWidth = this.width(str);
-    var scale = (width / strWidth) * 100;
+    const strWidth = this.width(str);
+    const scale = (width / strWidth) * 100;
 
-    var optionsScaling = {};
+    const optionsScaling = {};
 
-    for (var prop in options) {
+    for (let prop in options) {
       if (options.hasOwnProperty(prop)) {
         optionsScaling[prop] = options[prop];
       }
@@ -196,13 +196,13 @@ var textObject = function (document, fontName, color, size, options) {
  * @param {string} color RGB color string in format #RRGGBB
  * @param {float} scaleFactor amount to scale the SVG by. 1.0 is actual size
  */
-var svgObject = function (document, color, scaleFactor) {
-  var doc = document;
+const svgObject = function (document, color, scaleFactor) {
+  const doc = document;
 
   this.render = function (parts, x, y) {
     // Render each part of the path
-    for (var i = 0; i < parts.length; i++) {
-      var part = parts[i];
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
 
       if (part.type === 'path') {
         doc.save();

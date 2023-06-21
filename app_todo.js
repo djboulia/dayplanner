@@ -12,21 +12,21 @@
  *
  **/
 
-var fs = require('fs');
+const fs = require('fs');
 
-var CmdLine = require('./cmdline.js');
-var Planner = require('./planner.js');
-var theme = require('./theme.js');
+const CmdLine = require('./cmdline.js');
+const Planner = require('./planner.js');
+const theme = require('./theme.js');
 
-var cmdLine = new CmdLine();
-var config = cmdLine.parse();
+const cmdLine = new CmdLine();
+const config = cmdLine.parse();
 if (!config) {
   cmdLine.printUsageAndExit();
 }
 
 console.log('Generating todo sheet for date ' + config.date.toLocaleDateString());
 
-var planner = new Planner(config.date, theme);
+const planner = new Planner(config.date, theme);
 
 planner.open(fs.createWriteStream(config.filename));
 planner.renderTodo();

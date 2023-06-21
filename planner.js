@@ -1,35 +1,50 @@
 PDFDocument = require('pdfkit');
 
-var PageDetails = require('./pagedetails.js');
+const PageDetails = require('./pagedetails.js');
 
-var RGB = require('./rgb.js');
+const RGB = require('./rgb.js');
 
-function Planner(date, theme, logo) {
-  var pageNumber = 1;
+function Planner(date, theme) {
+  let pageNumber = 1;
 
   if (!theme) {
     // default theme
     theme = {
-      colorDay: RGB.gray,
-      colorMonth: RGB.gray,
-      colorCalendar: RGB.mediumGray,
-      colorNotesHeader: RGB.mediumGray,
-      colorNotesRulerLines: RGB.lightBlue,
+      date: {
+        day: {
+          color: RGB.gray,
+        },
+        month: {
+          color: RGB.gray,
+        },
+      },
+      calendar: {
+        color: RGB.mediumGray,
+      },
+      notes: {
+        header: {
+          colorBackground: RGB.mediumGray,
+        },
+        rule: {
+          color: RGB.lightBlue,
+        },
+      },
       logo: {
         color: undefined,
         scale: 1.0,
-        svg: undefined, // no logo by default - see IBMLogo.js or CNLogo.js for example
+        svg: undefined, // no logo by default - see IBMLogo.js or CNLogo.js for format
       },
     };
   }
 
-  var getCurrentPageMargins = function () {
+  const getCurrentPageMargins = function () {
     // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
     //                  off the top of page on inkjet printers. (COVID-19)
 
     // odd pages have an additional offset on the left
     // to allow for hole punching/binding
-    const left = pageNumber % 2 == 1 ? 55 : 30;
+    const BINDING = 25;
+    const left = pageNumber % 2 === 1 ? 30 + BINDING : 30;
     const width = 520;
 
     const margin = {
@@ -43,11 +58,56 @@ function Planner(date, theme, logo) {
     return margin;
   };
 
-  var styles = {
+  const getCalendarStyles = function () {
+    const stylesCalendar = { ...styles };
+    stylesCalendar.color = theme.calendar.color;
+    stylesCalendar.highlightColor = theme.calendar.color;
+    stylesCalendar.backgroundColor = RGB.white;
+
+    return stylesCalendar;
+  };
+
+  const getNotesStyles = function () {
+    const stylesNotes = { ...styles };
+    stylesNotes.color = theme.notes.header.colorBackground;
+    stylesNotes.lineColor = theme.notes.rule.color;
+
+    return stylesNotes;
+  };
+
+  const renderTopHeader = function (page, margin) {
+    page.dayLabel(date, margin.left, margin.top, {
+      color: theme.date.day.color,
+      size: 45,
+      width: 80,
+    });
+
+    page.monthLabel(date, margin.left, margin.top + 50, {
+      color: theme.date.month.color,
+      width: 80,
+      size: 28,
+    });
+
+    const stylesCalendar = getCalendarStyles();
+
+    page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
+    // offset factoids and logo from right margin
+    page.factoids(date, margin.right - 60, margin.top + 70, stylesCalendar);
+
+    const logo = theme.logo;
+    if (logo && logo.svg) {
+      page.logo(logo.svg, margin.right - 75, margin.top, {
+        color: logo.color,
+        scale: logo.scale,
+      });
+    }
+  };
+
+  const styles = {
     lineHeight: 23.75, // [djb 09/23/2016] originally lineHeight=21
   };
 
-  var doc = new PDFDocument({
+  const doc = new PDFDocument({
     size: 'letter',
   });
 
@@ -64,62 +124,25 @@ function Planner(date, theme, logo) {
     pageNumber++;
   };
 
-  const renderTopHeader = function (page, margin) {
-    page.dayLabel(date, margin.left, margin.top, {
-      color: theme.colorDay,
-      size: 45,
-      width: 80,
-    });
-
-    page.monthLabel(date, margin.left, margin.top + 50, {
-      color: theme.colorMonth,
-      width: 80,
-      size: 28,
-    });
-
-    var stylesCalendar = JSON.parse(JSON.stringify(styles));
-    stylesCalendar.color = theme.colorCalendar;
-    stylesCalendar.highlightColor = theme.colorCalendar;
-    stylesCalendar.backgroundColor = RGB.white;
-
-    page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
-
-    // offset factoids and logo from right margin
-    page.factoids(date, margin.right - 60, margin.top + 70, stylesCalendar);
-
-    const logo = theme.logo;
-    if (logo && logo.svg) {
-      page.logo(logo.svg, margin.right - 75, margin.top, {
-        color: logo.color,
-        scale: logo.scale,
-      });
-    }
-  };
-
   /**
    * renders a page with todo list at the top, note taking area below
    */
   this.renderTodoAndNotes = function () {
-    var page = new PageDetails(doc);
-    var margin = getCurrentPageMargins();
+    const page = new PageDetails(doc);
+    const margin = getCurrentPageMargins();
 
     renderTopHeader(page, margin);
 
-    var startY = margin.top + 50 + 45;
-    var todoHeight = styles.lineHeight * 10;
-    var workItemsWidth = 250;
+    let todoHeight = styles.lineHeight * 10;
+    const startY = margin.top + 50 + 45;
+    const workItemsWidth = 250;
 
-    var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = theme.colorNotesHeader;
-    stylesNotes.lineColor = theme.colorNotesRulerLines;
+    const stylesNotes = getNotesStyles();
 
     page.todoArea('Work Items', margin.left, startY, workItemsWidth, todoHeight, stylesNotes);
 
-    var homeItemsHeight = styles.lineHeight * 5;
-    var secondColumn = margin.left + workItemsWidth + 10;
-
-    const width = margin.width - secondColumn;
-    console.log('secondColumn: ' + secondColumn + ' margin.width-secondColumn: ' + width);
+    const homeItemsHeight = styles.lineHeight * 5;
+    const secondColumn = margin.left + workItemsWidth + 10;
 
     page.todoArea(
       'Personal Items',
@@ -141,7 +164,6 @@ function Planner(date, theme, logo) {
 
     todoHeight += 20;
 
-    console.log('margin.left ' + margin.left + ', margin.width ' + margin.width);
     page.notesArea(
       margin.left,
       startY + todoHeight,
@@ -155,20 +177,18 @@ function Planner(date, theme, logo) {
    * lays out a To-do page where the To-do list occupies the full page
    */
   this.renderTodo = function () {
-    var page = new PageDetails(doc);
-    var margin = getCurrentPageMargins();
+    const page = new PageDetails(doc);
+    const margin = getCurrentPageMargins();
 
     renderTopHeader(page, margin);
 
-    var startY = margin.top + 50 + 45;
-    var todoHeight = styles.lineHeight * 7 + 3;
-    var workItemsWidth = 250;
+    let todoHeight = styles.lineHeight * 7 + 3;
+    const startY = margin.top + 50 + 45;
+    const workItemsWidth = 250;
 
-    var secondColumn = margin.left + workItemsWidth + 10;
+    const secondColumn = margin.left + workItemsWidth + 10;
 
-    var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = theme.colorNotesHeader;
-    stylesNotes.lineColor = theme.colorNotesRulerLines;
+    const stylesNotes = getNotesStyles();
 
     page.todoArea('Personal Items', margin.left, startY, workItemsWidth, todoHeight, stylesNotes);
 
@@ -193,20 +213,20 @@ function Planner(date, theme, logo) {
     );
   };
 
+  /**
+   * renders a ruled page with a monthly calendar for the given date
+   */
   this.renderNotes = function () {
-    var page = new PageDetails(doc);
-    var margin = getCurrentPageMargins();
+    const page = new PageDetails(doc);
+    const margin = getCurrentPageMargins();
 
     page.monthLabel(date, margin.left, margin.top, {
-      color: theme.colorMonth,
+      color: theme.date.month.color,
       width: 80,
       size: 28,
     });
 
-    var stylesCalendar = JSON.parse(JSON.stringify(styles));
-    stylesCalendar.color = theme.colorCalendar;
-    stylesCalendar.highlightColor = theme.colorCalendar;
-    stylesCalendar.backgroundColor = RGB.white;
+    const stylesCalendar = getCalendarStyles();
 
     page.twoMonthCalendar(date, margin.left + 180, margin.top, stylesCalendar);
 
@@ -215,9 +235,7 @@ function Planner(date, theme, logo) {
       page.logo(logo.svg, margin.right - 75, margin.top, { color: logo.color, scale: logo.scale });
     }
 
-    var stylesNotes = JSON.parse(JSON.stringify(styles));
-    stylesNotes.color = theme.colorNotesHeader;
-    stylesNotes.lineColor = theme.colorNotesRulerLines;
+    const stylesNotes = getNotesStyles();
 
     page.notesArea(margin.left, margin.top + 41, margin.width, margin.height - 54, stylesNotes);
   };

@@ -18,7 +18,7 @@ renderLogos(doc);
 doc.end();
 
 function renderLogos(doc) {
-  var page = new PageDetails(doc);
+  const page = new PageDetails(doc);
   page.logo(IBMLogo, 250, 150, {
     color: '#FF0000', // test default color of red for IBM logo
     scale: 0.05,

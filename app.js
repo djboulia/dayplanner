@@ -1,29 +1,29 @@
-var express = require('express');
-var Planner = require('./planner.js');
+const express = require('express');
+const Planner = require('./planner.js');
 
-var app = express();
+const app = express();
 
 app.get('/', function (req, res) {
-    sendDocument(res);
+  sendDocument(res);
 });
 
-var server = app.listen(3000, function () {
-    var host = server.address().address;
-    var port = server.address().port;
+const server = app.listen(3000, function () {
+  const host = server.address().address;
+  const port = server.address().port;
 
-    console.log('DayPlanner app listening at http://%s:%s', host, port);
+  console.log('DayPlanner app listening at http://%s:%s', host, port);
 });
 
-var sendDocument = function (res) {
-    var date = new Date();
+const sendDocument = function (res) {
+  const date = new Date();
 
-    var planner = new Planner(date);
+  const planner = new Planner(date);
 
-    planner.open(res);
+  planner.open(res);
 
-    planner.renderTodo();
-    planner.newPage();
-    planner.renderNotes();
+  planner.renderTodo();
+  planner.newPage();
+  planner.renderNotes();
 
-    planner.close();
+  planner.close();
 };

@@ -7,25 +7,25 @@
  *
  **/
 
-var fs = require('fs');
+const fs = require('fs');
 
-var CmdLine = require('./cmdline.js');
-var DateUtils = require('./dateutils.js');
-var Planner = require('./planner.js');
-var theme = require('./theme.js');
+const CmdLine = require('./cmdline.js');
+const DateUtils = require('./dateutils.js');
+const Planner = require('./planner.js');
+const theme = require('./theme.js');
 
-var cmdLine = new CmdLine();
-var config = cmdLine.parse();
+const cmdLine = new CmdLine();
+const config = cmdLine.parse();
 if (!config) {
   cmdLine.printUsageAndExit();
 }
 
-var dateutils = new DateUtils();
-var month = dateutils.getMonthName(config.date.getMonth());
+const dateutils = new DateUtils();
+const month = dateutils.getMonthName(config.date.getMonth());
 
 console.log('Generating planner for month ' + month);
 
-var planner = new Planner(config.date, theme);
+const planner = new Planner(config.date, theme);
 
 planner.open(fs.createWriteStream(config.filename));
 planner.renderNotes();

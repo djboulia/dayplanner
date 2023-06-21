@@ -7,12 +7,26 @@ var CHARITY_NAVIGATOR = {
   black: '#011936',
 };
 
-var Theme = {
-  colorDay: CHARITY_NAVIGATOR.blue,
-  colorMonth: CHARITY_NAVIGATOR.black,
-  colorCalendar: CHARITY_NAVIGATOR.black,
-  colorNotesHeader: CHARITY_NAVIGATOR.black,
-  colorNotesRulerLines: CHARITY_NAVIGATOR.blue,
+const Theme = {
+  date: {
+    day: {
+      color: CHARITY_NAVIGATOR.blue,
+    },
+    month: {
+      color: CHARITY_NAVIGATOR.black,
+    },
+  },
+  calendar: {
+    color: CHARITY_NAVIGATOR.black,
+  },
+  notes: {
+    header: {
+      colorBackground: CHARITY_NAVIGATOR.black,
+    },
+    rule: {
+      color: CHARITY_NAVIGATOR.blue,
+    },
+  },
   logo: {
     color: undefined,
     scale: 0.125,
