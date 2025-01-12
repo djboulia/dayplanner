@@ -145,11 +145,55 @@ function PageDetails(document) {
    * @param {*} x uperr left x coord
    * @param {*} y upper left y coord
    * @param {*} w width
+   * @param {*} styles {width, color} width and color of the line
    */
   this.horizontalLine = function (x, y, w, styles) {
     const line = pdf.line(styles.color, styles.width);
 
     line.horizontal(x, y, w - 1);
+  };
+
+  /**
+   * Draw a horizontal line with the current theme color and width
+   *
+   * @param {*} x uperr left x coord
+   * @param {*} y upper left y coord
+   * @param {*} h height
+   * @param {*} styles {width, color} width and color of the line
+   */
+  this.verticalLine = function (x, y, h, styles) {
+    const line = pdf.line(styles.color, styles.width);
+
+    line.vertical(x, y, h - 1);
+  };
+
+  /**
+   * Display text in the given area
+   *
+   * @param {*} str text to display
+   * @param {*} x uperr left x coord
+   * @param {*} y upper left y coord
+   * @param {*} width width of text area
+   * @param {*} styles {width, color} width and color of the line
+   */
+  this.text = function (str, x, y, width, styles) {
+    const baseStyles = {
+      fontName: 'Helvetica',
+      align: 'center',
+      width: width,
+      lineBreak: false,
+    };
+
+    const lineHeight = styles.lineHeight;
+    styles = mergeObjects(baseStyles, styles);
+
+    const pdfText = pdf.text(styles.fontName, styles.color, lineHeight / 2, {
+      align: styles.align,
+      width: styles.width,
+      lineBreak: styles.lineBreak,
+    });
+
+    pdfText.print(str, x, y + lineHeight / 3);
   };
 
   /**
