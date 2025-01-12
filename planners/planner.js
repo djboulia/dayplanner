@@ -1,65 +1,18 @@
 PDFDocument = require('pdfkit');
 
-const PageDetails = require('./pagedetails.js');
-
-const RGB = require('./rgb.js');
+const PageDetails = require('../pagedetails.js');
+const DefaultTheme = require('../themes/defaulttheme.js');
+const RGB = require('../utils/rgb.js');
+const getPageMargins = require('../utils/margins.js');
+const mergeObjects = require('../utils/mergeobjects.js');
 
 function Planner(date, theme) {
   let pageNumber = 1;
 
-  if (!theme) {
-    // default theme
-    theme = {
-      date: {
-        day: {
-          color: RGB.gray,
-        },
-        month: {
-          color: RGB.gray,
-        },
-      },
-      calendar: {
-        color: RGB.mediumGray,
-      },
-      notes: {
-        header: {
-          colorBackground: RGB.mediumGray,
-        },
-        rule: {
-          color: RGB.lightBlue,
-        },
-      },
-      logo: {
-        color: undefined,
-        scale: 1.0,
-        svg: undefined, // no logo by default - see IBMLogo.js or CNLogo.js for format
-      },
-    };
-  }
-
-  const getCurrentPageMargins = function () {
-    // [djb 04/08/2020] moved top margin to 15 from 13 to avoid cutting
-    //                  off the top of page on inkjet printers. (COVID-19)
-
-    // odd pages have an additional offset on the left
-    // to allow for hole punching/binding
-    const BINDING = 25;
-    const left = pageNumber % 2 === 1 ? 30 + BINDING : 30;
-    const width = 520;
-
-    const margin = {
-      left: left,
-      right: left + width,
-      width: width,
-      top: 15, // minimum we can start from top
-      height: 767, // maximum height of page
-    };
-
-    return margin;
-  };
+  theme = mergeObjects(DefaultTheme, theme);
 
   const getCalendarStyles = function () {
-    const stylesCalendar = { ...styles };
+    const stylesCalendar = { lineHeight: theme.lineHeight };
     stylesCalendar.color = theme.calendar.color;
     stylesCalendar.highlightColor = theme.calendar.color;
     stylesCalendar.backgroundColor = RGB.white;
@@ -68,7 +21,7 @@ function Planner(date, theme) {
   };
 
   const getNotesStyles = function () {
-    const stylesNotes = { ...styles };
+    const stylesNotes = { lineHeight: theme.lineHeight };
     stylesNotes.color = theme.notes.header.colorBackground;
     stylesNotes.lineColor = theme.notes.rule.color;
 
@@ -92,7 +45,7 @@ function Planner(date, theme) {
 
     page.quarterCalendar(date, margin.left + 180, margin.top, stylesCalendar);
     // offset factoids and logo from right margin
-    page.factoids(date, margin.right - 60, margin.top + 70, stylesCalendar);
+    page.daysLeft(date, margin.right - 60, margin.top + 70, stylesCalendar);
 
     const logo = theme.logo;
     if (logo && logo.svg) {
@@ -101,10 +54,6 @@ function Planner(date, theme) {
         scale: logo.scale,
       });
     }
-  };
-
-  const styles = {
-    lineHeight: 23.75, // [djb 09/23/2016] originally lineHeight=21
   };
 
   const doc = new PDFDocument({
@@ -129,11 +78,11 @@ function Planner(date, theme) {
    */
   this.renderTodoAndNotes = function () {
     const page = new PageDetails(doc);
-    const margin = getCurrentPageMargins();
+    const margin = getPageMargins(pageNumber);
 
     renderTopHeader(page, margin);
 
-    let todoHeight = styles.lineHeight * 10;
+    let todoHeight = theme.lineHeight * 10;
     const startY = margin.top + 50 + 45;
     const workItemsWidth = 250;
 
@@ -141,7 +90,7 @@ function Planner(date, theme) {
 
     page.todoArea('Work Items', margin.left, startY, workItemsWidth, todoHeight, stylesNotes);
 
-    const homeItemsHeight = styles.lineHeight * 5;
+    const homeItemsHeight = theme.lineHeight * 5;
     const secondColumn = margin.left + workItemsWidth + 10;
 
     page.todoArea(
@@ -178,11 +127,11 @@ function Planner(date, theme) {
    */
   this.renderTodo = function () {
     const page = new PageDetails(doc);
-    const margin = getCurrentPageMargins();
+    const margin = getPageMargins(pageNumber);
 
     renderTopHeader(page, margin);
 
-    let todoHeight = styles.lineHeight * 7 + 3;
+    let todoHeight = theme.lineHeight * 7 + 3;
     const startY = margin.top + 50 + 45;
     const workItemsWidth = 250;
 
@@ -218,7 +167,7 @@ function Planner(date, theme) {
    */
   this.renderNotes = function () {
     const page = new PageDetails(doc);
-    const margin = getCurrentPageMargins();
+    const margin = getPageMargins(pageNumber);
 
     page.monthLabel(date, margin.left, margin.top, {
       color: theme.date.month.color,

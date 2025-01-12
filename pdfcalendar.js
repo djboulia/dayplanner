@@ -1,6 +1,6 @@
 const PDFDrawing = require('./pdfdrawing.js');
-const DateUtils = require('./dateutils.js');
-const FontUtils = require('./fontutils.js');
+const DateUtils = require('./utils/date.js');
+const FontUtils = require('./utils/font.js');
 
 const dateutils = new DateUtils();
 

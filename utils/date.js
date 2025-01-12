@@ -97,6 +97,44 @@ function DateUtils() {
 
     return daysBetween(firstDate, endOfQuarter);
   };
+
+  /* private function */
+  this.daysRemainingInYearToString = function (date) {
+    const days = this.daysRemainingInYear(date);
+    let str = '';
+
+    switch (days) {
+      case 0:
+        str = 'Last day of the year';
+        break;
+      case 1:
+        str = '1 day left this year';
+        break;
+      default:
+        str = days.toString() + ' days left this year';
+    }
+
+    return str;
+  };
+
+  /* private function */
+  this.daysRemainingInQuarterToString = function (date) {
+    const days = this.daysRemainingInQuarter(date);
+    let str = '';
+
+    switch (days) {
+      case 0:
+        str = 'Last day of the quarter';
+        break;
+      case 1:
+        str = '1 day left this quarter';
+        break;
+      default:
+        str = days.toString() + ' days left this quarter';
+    }
+
+    return str;
+  };
 }
 
 module.exports = DateUtils;

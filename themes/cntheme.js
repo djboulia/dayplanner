@@ -1,4 +1,4 @@
-var CNLogo = require('./cnlogo.js');
+var CNLogo = require('../logos/cnlogo.js');
 
 // CN color palette from CN Logo
 var CHARITY_NAVIGATOR = {

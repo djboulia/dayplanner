@@ -9,10 +9,10 @@
 
 const fs = require('fs');
 
-const CmdLine = require('./cmdline.js');
-const DateUtils = require('./dateutils.js');
-const Planner = require('./planner.js');
-const theme = require('./theme.js');
+const CmdLine = require('./utils/cmdline.js');
+const DateUtils = require('./utils/date.js');
+const Planner = require('./planners/planner.js');
+const theme = require('./themes/cntheme.js');
 
 const cmdLine = new CmdLine();
 const config = cmdLine.parse();

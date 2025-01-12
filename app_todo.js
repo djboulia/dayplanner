@@ -14,9 +14,9 @@
 
 const fs = require('fs');
 
-const CmdLine = require('./cmdline.js');
-const Planner = require('./planner.js');
-const theme = require('./theme.js');
+const CmdLine = require('./utils/cmdline.js');
+const Planner = require('./planners/planner.js');
+const theme = require('./themes/cntheme.js');
 
 const cmdLine = new CmdLine();
 const config = cmdLine.parse();

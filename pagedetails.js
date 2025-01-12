@@ -1,29 +1,11 @@
-const DateUtils = require('./dateutils.js');
+const DateUtils = require('./utils/date.js');
 const PDFCalendar = require('./pdfcalendar.js');
 const PDFDrawing = require('./pdfdrawing.js');
+const mergeObjects = require('./utils/mergeobjects.js');
 
-const RGB = require('./rgb.js');
+const RGB = require('./utils/rgb.js');
 
 const dateutils = new DateUtils();
-
-const applyStyles = function (defaultStyles, userStyles) {
-  defaultStyles = defaultStyles || {};
-  userStyles = userStyles || {};
-
-  const mergedStyles = {};
-
-  for (let attrname in defaultStyles) {
-    mergedStyles[attrname] = defaultStyles[attrname];
-  }
-
-  // now apply any user defined styles.  note that any user styles
-  // will override the default
-  for (let attrname in userStyles) {
-    mergedStyles[attrname] = userStyles[attrname];
-  }
-
-  return mergedStyles;
-};
 
 function PageDetails(document) {
   const pdf = new PDFDrawing(document);
@@ -39,7 +21,7 @@ function PageDetails(document) {
       width: 70,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     pdfCalendar.dayLabel(theDate, x, y, styles);
   };
@@ -51,7 +33,7 @@ function PageDetails(document) {
       size: 25,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     pdfCalendar.monthLabel(theDate, x, y, styles);
   };
@@ -62,7 +44,7 @@ function PageDetails(document) {
       size: 5,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     pdfCalendar.twoMonthCalendar(date, x, y, styles);
   };
@@ -75,7 +57,7 @@ function PageDetails(document) {
       size: 5.5,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     pdfCalendar.quarterCalendar(date, x, y, styles);
   };
@@ -105,7 +87,7 @@ function PageDetails(document) {
       marginWidth: 25,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     this.ruledArea(title, x, y, width, height, styles);
 
@@ -141,7 +123,7 @@ function PageDetails(document) {
       marginWidth: 25,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     this.ruledArea(title, x, y, width, height, styles);
 
@@ -157,16 +139,37 @@ function PageDetails(document) {
     dateLine.doubleLineTo(xDatePos, y, xDatePos, y + height);
   };
 
-  /* private function */
-  const rulerLines = function (x, y, w, h, lineWidth, lineHeight, color) {
+  /**
+   * Draw a horizontal line with the current theme color and width
+   *
+   * @param {*} x uperr left x coord
+   * @param {*} y upper left y coord
+   * @param {*} w width
+   */
+  this.horizontalLine = function (x, y, w, styles) {
+    const line = pdf.line(styles.color, styles.width);
+
+    line.horizontal(x, y, w - 1);
+  };
+
+  /**
+   * Draw ruler lines in the given area
+   *
+   * @param {*} x uperr left x coord
+   * @param {*} y upper left y coord
+   * @param {*} w width
+   * @param {*} h height
+   * @param {*} styles {width, height, color}
+   */
+  this.rulerLines = function (x, y, w, h, styles) {
     // empty ruler lines for notes
 
-    const rulerLine = pdf.line(color, lineWidth);
+    const rulerLine = pdf.line(styles.color, styles.width);
 
     while (y < h) {
       rulerLine.horizontal(x, y, w - 1);
 
-      y += lineHeight;
+      y += styles.height;
     }
   };
 
@@ -194,7 +197,7 @@ function PageDetails(document) {
       lineHeight: lineHeight,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     const rectShadow = pdf.rectangle(styles.shadowColor, 0.75);
     rectShadow.dropShadow(x, y, width, height, 4);
@@ -217,7 +220,11 @@ function PageDetails(document) {
     const yVal = y + lineHeight + lineHeight / 10;
     const yLine = yVal + lineHeight;
 
-    rulerLines(x + 1, yLine, width, y + height, 0.25, lineHeight, styles.lineColor);
+    this.rulerLines(x + 1, yLine, width, y + height, {
+      width: 0.25,
+      height: lineHeight,
+      color: styles.lineColor,
+    });
   };
 
   /**
@@ -237,21 +244,17 @@ function PageDetails(document) {
       marginWidth: 77,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     const rect = pdf.rectangle(styles.color, 0.75);
     rect.shadowRect(x, y, width, height, 4, styles.shadowColor);
 
     // empty ruler lines for notes
-    rulerLines(
-      x + 1,
-      y + styles.lineHeight,
-      width,
-      y + height,
-      0.25,
-      styles.lineHeight,
-      styles.lineColor,
-    );
+    this.rulerLines(x + 1, y + styles.lineHeight, width, y + height, {
+      width: 0.25,
+      height: styles.lineHeight,
+      color: styles.lineColor,
+    });
 
     // vertical margin line
     const line = pdf.line(styles.color, 1.0);
@@ -259,70 +262,32 @@ function PageDetails(document) {
     line.doubleLineTo(x + styles.marginWidth, y, x + styles.marginWidth, y + height);
   };
 
-  /* private function */
-  const daysRemainingInYear = function (date) {
-    const days = dateutils.daysRemainingInYear(date);
-    let str = '';
-
-    switch (days) {
-      case 0:
-        str = 'Last day of the year';
-        break;
-      case 1:
-        str = '1 day left this year';
-        break;
-      default:
-        str = days.toString() + ' days left this year';
-    }
-
-    return str;
-  };
-
-  /* private function */
-  const daysRemainingInQuarter = function (date) {
-    const days = dateutils.daysRemainingInQuarter(date);
-    let str = '';
-
-    switch (days) {
-      case 0:
-        str = 'Last day of the quarter';
-        break;
-      case 1:
-        str = '1 day left this quarter';
-        break;
-      default:
-        str = days.toString() + ' days left this quarter';
-    }
-
-    return str;
-  };
-
   /**
-   * puts informational text at x, y
+   * puts days left in quarter/year as text at x, y
    *
-   * @param date - date to use for factoids
+   * @param date - date to use for days left in year/quarter
    *  @param x - upper left x coord
    * @param y - upper left y coord
    * @param styles object with style info (see below)
    */
-  this.factoids = function (date, x, y, styles) {
+  this.daysLeft = function (date, x, y, styles) {
     const baseStyles = {
       color: RGB.mediumGray,
       size: 5.5,
     };
 
-    styles = applyStyles(baseStyles, styles);
+    styles = mergeObjects(baseStyles, styles);
 
     const text = pdf.text('Helvetica', styles.color, styles.size, {
       align: 'left',
       lineBreak: false,
     });
 
-    let str = daysRemainingInYear(date);
+    let str = dateutils.daysRemainingInYearToString(date);
     text.print(str, x, y);
 
     const height = text.height(str);
-    str = daysRemainingInQuarter(date);
+    str = dateutils.daysRemainingInQuarterToString(date);
     text.print(str, x, y + height + styles.size / 5);
   };
 
