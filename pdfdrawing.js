@@ -217,11 +217,11 @@ const svgObject = function (document, color, scaleFactor) {
         if (part.fill !== 'none' && part.stroke !== 'none') {
           doc.fillAndStroke(color ? color : part.fill, part.stroke);
         } else {
-          if (part.fill === 'none') {
+          if (part.fill !== 'none') {
             doc.fill(color ? color : part.fill);
           }
 
-          if (part.stroke === 'none') {
+          if (part.stroke !== 'none') {
             doc.stroke(part.stroke);
           }
         }
