@@ -285,7 +285,7 @@ const PDFCalendar = function (document) {
    * DEC  S M T W T F S   |   S M T W T F S  FEB
    *        1 2 3 4 5 6   |         1 2 3 4
    *      7 8 9 ...       |   5 6 7 8 9 ...
-   *     	 		        |
+   *     	 		            |
    *                      |
    *
    * @param date - the month and year for the calendar
