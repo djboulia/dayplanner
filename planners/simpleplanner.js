@@ -7,14 +7,14 @@ const mergeObjects = require('../utils/mergeobjects.js');
 const getPageMargins = function () {
   // odd pages have an additional offset on the left
   // to allow for hole punching/binding
-  const left = 15;
-  const width = 585;
+  const left = 19;
+  const width = 581;
 
   const margin = {
     left: left,
     right: left + width,
     width: width,
-    top: 15, // minimum we can start from top
+    top: 40, // minimum we can start from top
     height: 820, // maximum height of page
   };
 
@@ -56,7 +56,7 @@ function SimplePlanner(theme) {
 
     page.text(text, x, y, 100, {
       align: 'right',
-      color: styles.width,
+      color: styles.color,
       lineHeight: lineHeight,
     });
     page.horizontalLine(x + 100 + 2, y + lineHeight - 4, width, {
@@ -85,7 +85,9 @@ function SimplePlanner(theme) {
     const page = new PageDetails(doc);
     const margin = getPageMargins();
     const lineWidth = 0.25;
-    const topHeight = 60;
+    const topHeight = margin.top + 20;
+    const COLUMN_RIGHT = 150;
+    const NOTES_LEFT = COLUMN_RIGHT + 10;
 
     const logo = theme.logo;
     if (logo && logo.svg) {
@@ -109,22 +111,27 @@ function SimplePlanner(theme) {
       color: stylesNotes.lineColor,
     });
 
-    page.verticalLine(margin.left + 140, margin.top + topHeight, margin.height - topHeight - 149, {
-      width: lineWidth,
-      color: stylesNotes.lineColor,
-    });
+    page.verticalLine(
+      margin.left + COLUMN_RIGHT,
+      margin.top + topHeight,
+      margin.height - topHeight - 189,
+      {
+        width: lineWidth,
+        color: stylesNotes.lineColor,
+      },
+    );
 
-    page.text('NOTES', margin.left + 150, margin.top + topHeight - 2, 100, {
+    page.text('NOTES', margin.left + NOTES_LEFT, margin.top + topHeight - 2, 100, {
       align: 'left',
       color: stylesNotes.lineColor,
       lineHeight: 14,
     });
 
     page.rulerLines(
-      margin.left + 150,
+      margin.left + NOTES_LEFT,
       margin.top + topHeight + theme.lineHeight,
-      margin.width - 150,
-      margin.height - 149,
+      margin.width - 160,
+      margin.height - 159,
       {
         width: lineWidth,
         height: stylesNotes.lineHeight,
@@ -132,7 +139,7 @@ function SimplePlanner(theme) {
       },
     );
 
-    headerSection(page, 'SUMMARY', margin.left, margin.height - 135, margin.width, {
+    headerSection(page, 'SUMMARY', margin.left, margin.height - 150, margin.width, {
       width: lineWidth,
       color: stylesNotes.lineColor,
     });
